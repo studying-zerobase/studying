@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 public class SendMailService {
 
     private final JavaMailSender javaMailSender;
+    private final RedisUtil redisUtil;
 
     @Value("${spring.mail.username}")
     private String id;
@@ -60,6 +61,8 @@ public class SendMailService {
         try{
             MimeMessage mimeMessage = createMessage(code, email);
             javaMailSender.send(mimeMessage);
+            redisUtil.setData(email, code,60*5L); //5분간 저장
+
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
