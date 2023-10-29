@@ -58,14 +58,14 @@ public class SendMailService {
         String code = keyGenerator();
         log.info("\n>>>>>> recipient: " + recipient);
         log.info("\n>>>>>> code: " + code);
-        try{
+        try {
             MimeMessage mimeMessage = createMessage(code, email);
             javaMailSender.send(mimeMessage);
-            redisUtil.setData(email, code,60*5L); //5분간 저장
-
-        } catch (Exception e) {
+            redisUtil.setData(email, code, 5);
+        }catch (Exception e) {
+            log.info("\n-------------error------------");
             throw new RuntimeException(e);
         }
     }
-
 }
+

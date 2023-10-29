@@ -1,6 +1,7 @@
 package com.zerobase.munbanggu.service;
 
 
+import java.util.concurrent.TimeUnit;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
@@ -19,7 +20,7 @@ public class RedisUtil {
 
   public void setData(String key, String value, long duration) {
     ValueOperations<String,String> valueOperations = stringRedisTemplate.opsForValue();
-    valueOperations.set(key,value,duration);
+    valueOperations.set(key,value,duration, TimeUnit.MINUTES);
   }
   public void deleteData(String key){
     stringRedisTemplate.delete(key);
