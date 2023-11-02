@@ -1,7 +1,7 @@
 package com.zerobase.munbanggu.config.auth;
 
-import com.zerobase.munbanggu.model.entity.User;
-import com.zerobase.munbanggu.repository.UserRepository;
+import com.zerobase.munbanggu.user.model.entity.User;
+import com.zerobase.munbanggu.user.repository.UserRepository;
 import java.util.Collections;
 import javax.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
@@ -29,6 +29,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
         // OAuth2 서비스 id
         String registrationId = userRequest.getClientRegistration().getRegistrationId();
+        log.info("registrationId = " + registrationId);
         // OAuth2 로그인 키 값
         String userNameAttributeName = userRequest.getClientRegistration().getProviderDetails().getUserInfoEndpoint()
                 .getUserNameAttributeName();

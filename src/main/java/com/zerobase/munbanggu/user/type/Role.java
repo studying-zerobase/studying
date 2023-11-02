@@ -1,4 +1,4 @@
-package com.zerobase.munbanggu.type;
+package com.zerobase.munbanggu.user.type;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -6,9 +6,10 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public enum Role {
-    GUEST("ROLE_GUEST"),
-    USER("ROLE_USER");
+    USER("ROLE_USER"),
+    ADMIN("ROLE_ADMIN"),
+    INACTIVE("ROLE_INACTIVE");
 
     private final String key;
 
-    }
+}

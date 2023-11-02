@@ -1,8 +1,8 @@
 package com.zerobase.munbanggu.config.auth;
 
-import com.zerobase.munbanggu.model.entity.User;
-import com.zerobase.munbanggu.type.AuthProvider;
-import com.zerobase.munbanggu.type.Role;
+import com.zerobase.munbanggu.user.model.entity.User;
+import com.zerobase.munbanggu.user.type.AuthProvider;
+import com.zerobase.munbanggu.user.type.Role;
 import java.util.Map;
 import lombok.Builder;
 import lombok.Getter;
@@ -62,7 +62,7 @@ public class OAuthAttributes {
         return User.builder()
                 .name(name)
                 .email(email)
-                .profile(profile)
+                .profileImageUrl(profile)
                 .role(role)
                 .authProvider(authProvider)
                 .build();

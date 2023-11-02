@@ -1,6 +1,6 @@
 package com.zerobase.munbanggu.config.auth;
 
-import com.zerobase.munbanggu.type.Role;
+import com.zerobase.munbanggu.user.type.Role;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Objects;
