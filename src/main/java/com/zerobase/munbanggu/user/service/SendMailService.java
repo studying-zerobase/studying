@@ -1,4 +1,4 @@
-package com.zerobase.munbanggu.service;
+package com.zerobase.munbanggu.user.service;
 import org.apache.commons.lang3.RandomStringUtils;
 
 
@@ -66,6 +66,13 @@ public class SendMailService {
             log.info("\n-------------error------------");
             throw new RuntimeException(e);
         }
+    }
+
+    public boolean verifyCode(String email, String input){
+        String code = redisUtil.getData(email);
+
+        log.info("\n\n>>>>>>>>>>>>>>code : "+code +" input_code : "+input+ " "+code.equals(input));
+        return code.equals(input);
     }
 }
 

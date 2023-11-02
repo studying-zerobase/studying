@@ -1,5 +1,7 @@
 package com.zerobase.munbanggu.service;
 
+import com.zerobase.munbanggu.user.service.RedisUtil;
+import com.zerobase.munbanggu.user.service.SendMailService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -23,4 +25,9 @@ class SendMailServiceTest {
         }
     }
 
+    @Test
+    public void verifyCodeTest(){
+        String inputCode = "xNacyj3CcW";
+        assert (sendMailService.verifyCode(recipient_email,inputCode)  );
+    }
 }

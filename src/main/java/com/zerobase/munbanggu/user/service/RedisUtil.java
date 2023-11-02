@@ -1,4 +1,4 @@
-package com.zerobase.munbanggu.service;
+package com.zerobase.munbanggu.user.service;
 
 
 import java.util.concurrent.TimeUnit;
