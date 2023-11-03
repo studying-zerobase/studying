@@ -1,4 +1,4 @@
-package com.zerobase.munbanggu.service;
+package com.zerobase.munbanggu.user.service;
 
 import com.zerobase.munbanggu.user.service.RedisUtil;
 import com.zerobase.munbanggu.user.service.SendMailService;
@@ -27,7 +27,7 @@ class SendMailServiceTest {
 
     @Test
     public void verifyCodeTest(){
-        String inputCode = "xNacyj3CcW";
-        assert (sendMailService.verifyCode(recipient_email,inputCode)  );
+        String inputCode = "P94NBvWTCR";
+        assert (sendMailService.verifyCode(recipient_email,inputCode).equals("인증성공") );
     }
 }
