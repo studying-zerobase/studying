@@ -1,6 +1,6 @@
-package com.zerobase.munbanggu.service;
+package com.zerobase.munbanggu.util;
 
-import com.zerobase.munbanggu.model.UserInfo;
+import com.zerobase.munbanggu.dto.UserInfo;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
@@ -12,7 +12,6 @@ import java.util.Date;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
 
 @Component
 @Slf4j

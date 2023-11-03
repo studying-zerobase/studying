@@ -1,4 +1,4 @@
-package com.zerobase.munbanggu.exception;
+package com.zerobase.munbanggu.user.exception;
 
 
 import com.zerobase.munbanggu.type.ErrorCode;

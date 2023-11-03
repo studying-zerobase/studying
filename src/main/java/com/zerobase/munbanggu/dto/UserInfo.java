@@ -1,4 +1,4 @@
-package com.zerobase.munbanggu.model;
+package com.zerobase.munbanggu.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
