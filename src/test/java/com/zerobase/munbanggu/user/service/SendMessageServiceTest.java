@@ -1,5 +1,6 @@
 package com.zerobase.munbanggu.user.service;
 
+import com.zerobase.munbanggu.user.type.AuthenticationStatus;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -19,8 +20,8 @@ class SendMessageServiceTest {
 
     @Test
     public void verifyCodeTest(){
-        String code = "56261";
-        assert (sendMessageService.verifyCode(phoneNumber,code).equals("인증성공"));
+        String code = "24542";
+        assert (sendMessageService.verifyCode(phoneNumber,code).equals(AuthenticationStatus.SUCCESS));
     }
 
 }

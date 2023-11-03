@@ -1,4 +1,5 @@
 package com.zerobase.munbanggu.user.service;
+import com.zerobase.munbanggu.user.type.AuthenticationStatus;
 import org.apache.commons.lang3.RandomStringUtils;
 
 
@@ -54,7 +55,7 @@ public class SendMailService {
         return  message;
     }
 
-    public String sendMail(String email){
+    public AuthenticationStatus sendMail(String email){
         String code = keyGenerator();
         log.info("\n>>>>>> recipient: " + recipient);
         log.info("\n>>>>>> code: " + code);
@@ -62,28 +63,27 @@ public class SendMailService {
             MimeMessage mimeMessage = createMessage(code, email);
             javaMailSender.send(mimeMessage);
             redisUtil.setData(email, code, 5);
-            return "이메일 전송 성공";
+            return AuthenticationStatus.SUCCESS;
         }catch (Exception e) {
-            log.info("\n-------------error------------");
             throw new RuntimeException(e);
         }
     }
 
-    public String verifyCode(String email, String input) {
+    public AuthenticationStatus verifyCode(String email, String input) {
         String code = "";
         try {
             code = redisUtil.getData(email);
-            log.info("\n\n>>>>>>>>>>>>>>code : " + code + " input_code : " + input + " "
+            log.info("\ncode : " + code + " input_code : " + input + " same?: "
                     + code.equals(input));
         } catch (Exception e) {
-            System.out.println("\n-------------------------------- " + e.getMessage());
+            System.out.println(e.getMessage());
         }
 
 
         if (code.equals(input)) {
-            return "인증성공";
+            return AuthenticationStatus.SUCCESS;
         }
-        return "인증실패";
+        return AuthenticationStatus.FAIL;
 
     }
 }

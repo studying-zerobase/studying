@@ -2,6 +2,7 @@ package com.zerobase.munbanggu.user.service;
 
 import com.zerobase.munbanggu.user.service.RedisUtil;
 import com.zerobase.munbanggu.user.service.SendMailService;
+import com.zerobase.munbanggu.user.type.AuthenticationStatus;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -28,6 +29,6 @@ class SendMailServiceTest {
     @Test
     public void verifyCodeTest(){
         String inputCode = "P94NBvWTCR";
-        assert (sendMailService.verifyCode(recipient_email,inputCode).equals("인증성공") );
+        assert (sendMailService.verifyCode(recipient_email,inputCode).equals(AuthenticationStatus.SUCCESS) );
     }
 }

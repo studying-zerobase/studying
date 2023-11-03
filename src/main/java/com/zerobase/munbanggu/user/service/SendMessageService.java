@@ -1,5 +1,6 @@
 package com.zerobase.munbanggu.user.service;
 
+import com.zerobase.munbanggu.user.type.AuthenticationStatus;
 import java.util.HashMap;
 import lombok.RequiredArgsConstructor;
 import net.nurigo.java_sdk.api.Message;
@@ -31,7 +32,7 @@ public class SendMessageService {
         return RandomStringUtils.random(5,false,true);
     }
 
-    public String verifyPhoneNumber(String phoneNumber) {
+    public AuthenticationStatus verifyPhoneNumber(String phoneNumber) {
         String key = keyGenerator();
 
         Message coolsms = new Message(apiKey, secretKey);
@@ -44,25 +45,26 @@ public class SendMessageService {
         params.put("app_version", "test app 1.2"); // application name and version
 
         log.info("\n"+params.toString());
+
         try {
             JSONObject obj = (JSONObject) coolsms.send(params);
             redisUtil.setData(phoneNumber,key,2);  //redis에 2분간 저장
-
+            return AuthenticationStatus.SUCCESS;
         } catch (CoolsmsException e) {
-            System.out.println(e.getMessage());
-            System.out.println(e.getCode());
+            System.out.println(e.getMessage() +" "+ e.getCode());
+            return AuthenticationStatus.FAIL;
         }
 
-        return "인증번호 전송 완료";
+
     }
 
-    public String verifyCode(String phoneNumber, String input) {
+    public AuthenticationStatus verifyCode(String phoneNumber, String input) {
         String code = redisUtil.getData(phoneNumber);
 
         if (code.equals(input)) {
-            return "인증성공";
+            return AuthenticationStatus.SUCCESS;
         }
-        return "인증실패";
+        return AuthenticationStatus.FAIL;
     }
 
 }
