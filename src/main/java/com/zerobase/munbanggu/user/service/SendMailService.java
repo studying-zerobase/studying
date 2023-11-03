@@ -54,7 +54,7 @@ public class SendMailService {
         return  message;
     }
 
-    public void sendMail(String email){
+    public String sendMail(String email){
         String code = keyGenerator();
         log.info("\n>>>>>> recipient: " + recipient);
         log.info("\n>>>>>> code: " + code);
@@ -62,17 +62,29 @@ public class SendMailService {
             MimeMessage mimeMessage = createMessage(code, email);
             javaMailSender.send(mimeMessage);
             redisUtil.setData(email, code, 5);
+            return "이메일 전송 성공";
         }catch (Exception e) {
             log.info("\n-------------error------------");
             throw new RuntimeException(e);
         }
     }
 
-    public boolean verifyCode(String email, String input){
-        String code = redisUtil.getData(email);
+    public String verifyCode(String email, String input) {
+        String code = "";
+        try {
+            code = redisUtil.getData(email);
+            log.info("\n\n>>>>>>>>>>>>>>code : " + code + " input_code : " + input + " "
+                    + code.equals(input));
+        } catch (Exception e) {
+            System.out.println("\n-------------------------------- " + e.getMessage());
+        }
 
-        log.info("\n\n>>>>>>>>>>>>>>code : "+code +" input_code : "+input+ " "+code.equals(input));
-        return code.equals(input);
+
+        if (code.equals(input)) {
+            return "인증성공";
+        }
+        return "인증실패";
+
     }
 }
 
