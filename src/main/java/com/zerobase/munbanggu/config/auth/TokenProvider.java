@@ -3,7 +3,6 @@ package com.zerobase.munbanggu.config.auth;
 import static com.zerobase.munbanggu.user.exception.ErrorCode.INVALID_TOKEN;
 import static com.zerobase.munbanggu.user.exception.ErrorCode.NOT_FOUND_EMAIL;
 
-import com.zerobase.munbanggu.user.model.entity.RefreshToken;
 import com.zerobase.munbanggu.user.model.entity.User;
 import com.zerobase.munbanggu.user.repository.RefreshTokenRepository;
 import com.zerobase.munbanggu.user.repository.UserRepository;
@@ -70,10 +69,11 @@ public class TokenProvider {
         User user = userRepository.findByEmail(username)
                 .orElseThrow(() -> new UsernameNotFoundException(NOT_FOUND_EMAIL.getMessage()));
         user = entityManager.merge(user);
-        refreshTokenRepository.save(RefreshToken.builder()
-                .token(token)
-                .user(user)
-                .build());
+
+//        refreshTokenRepository.save(RefreshToken.builder()
+//                .token(token)
+//                .user(user)
+//                .build());
         return token;
     }
 
