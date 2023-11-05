@@ -15,7 +15,7 @@ class SendMessageServiceTest {
     SendMessageService sendMessageService;
     @Test
     public void sendMsgTest(){
-        sendMessageService.verifyPhoneNumber(phoneNumber);
+        sendMessageService.sendMessage(phoneNumber);
     }
 
     @Test

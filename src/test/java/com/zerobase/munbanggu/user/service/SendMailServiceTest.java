@@ -1,7 +1,5 @@
 package com.zerobase.munbanggu.user.service;
 
-import com.zerobase.munbanggu.user.service.RedisUtil;
-import com.zerobase.munbanggu.user.service.SendMailService;
 import com.zerobase.munbanggu.user.type.AuthenticationStatus;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +18,7 @@ class SendMailServiceTest {
     @Test
     public void sendMailTest(){
         try{
-            sendMailService.sendMail(recipient_email);
+            sendMailService.sendMailVerification(recipient_email);
         }catch(Exception e){
             System.out.println(e.getMessage());
         }

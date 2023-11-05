@@ -1,5 +1,7 @@
 package com.zerobase.munbanggu.user.service;
 
+import static com.zerobase.munbanggu.user.type.RedisTime.PHONE_VALID;
+
 import com.zerobase.munbanggu.user.type.AuthenticationStatus;
 import java.util.HashMap;
 import lombok.RequiredArgsConstructor;
@@ -14,9 +16,9 @@ import org.springframework.stereotype.Service;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-
 public class SendMessageService {
     private final RedisUtil redisUtil;
+    private final int CODE_LENGTH = 5;
 
     @Value("${coolsms.api-key}")
     private String apiKey;
@@ -27,35 +29,27 @@ public class SendMessageService {
     @Value("${secret.phone-number}")
     private String senderPhoneNumber;
 
-
-    private String keyGenerator(){
-        return RandomStringUtils.random(5,false,true);
-    }
-
-    public AuthenticationStatus verifyPhoneNumber(String phoneNumber) {
-        String key = keyGenerator();
-
+    public AuthenticationStatus sendMessage(String phoneNumber) {
+        String key = RandomStringUtils.random(CODE_LENGTH,false,true);
         Message coolsms = new Message(apiKey, secretKey);
 
         HashMap<String, String> params = new HashMap<String, String>();
         params.put("to", phoneNumber);
         params.put("from", senderPhoneNumber);
         params.put("type", "SMS");
-        params.put("text", "[문방구] 핸드폰 인증 메세지\n 인증번호는 ["+key+"] 입니다.");
-        params.put("app_version", "test app 1.2"); // application name and version
+        params.put("text", "[문방구] 핸드폰 인증 메세지 \n 인증번호는 ["+key+"] 입니다.");
+        params.put("app_version", "test app 1.2");
 
         log.info("\n"+params.toString());
 
         try {
             JSONObject obj = (JSONObject) coolsms.send(params);
-            redisUtil.setData(phoneNumber,key,2);  //redis에 2분간 저장
+            redisUtil.setData(phoneNumber,key,PHONE_VALID.getTime());
             return AuthenticationStatus.SUCCESS;
         } catch (CoolsmsException e) {
-            System.out.println(e.getMessage() +" "+ e.getCode());
+            log.info(e.getMessage());
             return AuthenticationStatus.FAIL;
         }
-
-
     }
 
     public AuthenticationStatus verifyCode(String phoneNumber, String input) {
@@ -66,5 +60,4 @@ public class SendMessageService {
         }
         return AuthenticationStatus.FAIL;
     }
-
 }
