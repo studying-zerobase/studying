@@ -9,6 +9,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import java.security.Key;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -17,8 +18,8 @@ import javax.crypto.SecretKey;
 import javax.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 @Service
@@ -48,16 +49,25 @@ public class TokenProvider {
         secretKey = Keys.hmacShaKeyFor(Decoders.BASE64.decode(secret));
     }
 
+    public String generateAccessTokenOrRefreshToken(CustomOAuth2User oAuth2User, Long expirationTimeInSeconds) {
+        Long userId = oAuth2User.getUser().getId();
 
-    public String generateAccessToken(Long userId, String authority) {
-        Date expiration = new Date(new Date().getTime() + accessTokenExpirationTimeInSeconds);
+        String authority = "";
+        Collection<? extends GrantedAuthority> authorities = oAuth2User.getAuthorities();
+        if (!authorities.isEmpty()) {
+            authority = authorities.iterator().next().getAuthority();
+        }
+        Date now = new Date();
+        Date expiration = new Date(now.getTime() + expirationTimeInSeconds);
         return generateToken(userId, authority, expiration);
     }
 
-    @Transactional
-    public String generateRefreshToken(Long userId, String authority) {
-        Date expiration = new Date(new Date().getTime() + refreshTokenExpirationTimeInSeconds);
-        return generateToken(userId, authority, expiration);
+    public String generateAccessToken(CustomOAuth2User oAuth2User) {
+        return generateAccessTokenOrRefreshToken(oAuth2User, accessTokenExpirationTimeInSeconds);
+    }
+
+    public String generateRefreshToken(CustomOAuth2User oAuth2User) {
+        return generateAccessTokenOrRefreshToken(oAuth2User, refreshTokenExpirationTimeInSeconds);
     }
 
     private String generateToken(Long userId, String authority, Date expiration) {
