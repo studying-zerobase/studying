@@ -46,7 +46,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
         saveRefreshTokenInRedis(oAuth2User, refreshToken);
 
-        log.info("redisUtil.getData(): " + redisUtil.getData(refreshToken));
+        log.info("redisUtil.getData(): " + redisUtil.getData("RT:"+oAuth2User.getUser().getEmail()));
 
         tokenProvider.addAccessRefreshTokenToResponseHeader(response, accessToken, refreshToken);
     }
@@ -58,7 +58,8 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
     }
 
     private void saveRefreshTokenInRedis(CustomOAuth2User oAuth2User, String refreshToken) {
-        redisUtil.setData(String.valueOf(oAuth2User.getUser().getId()), refreshToken,
+        refreshToken = tokenProvider.getRawToken(refreshToken);
+        redisUtil.setData("RT:" + oAuth2User.getUser().getEmail(), refreshToken,
                 refreshTokenExpirationTimeInSeconds);
     }
 }
