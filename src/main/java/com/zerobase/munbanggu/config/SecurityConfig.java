@@ -1,6 +1,7 @@
 package com.zerobase.munbanggu.config;
 
 import com.zerobase.munbanggu.config.auth.CustomOAuth2UserService;
+import com.zerobase.munbanggu.config.auth.OAuth2FailureHandler;
 import com.zerobase.munbanggu.config.auth.OAuth2SuccessHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -17,6 +18,7 @@ public class SecurityConfig {
 
     private final CustomOAuth2UserService customOAuth2UserService;
     private final OAuth2SuccessHandler oAuth2SuccessHandler;
+    private final OAuth2FailureHandler oAuth2FailureHandler;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -31,8 +33,11 @@ public class SecurityConfig {
                 .antMatchers("/", "/css/**", "/images/**", "/js/**", "/h2-console/**").permitAll()
                 .anyRequest().authenticated()
                 .and()
+                .logout()
+                .and()
                 .oauth2Login()
                 .successHandler(oAuth2SuccessHandler)
+                .failureHandler(oAuth2FailureHandler)
                 .userInfoEndpoint().userService(customOAuth2UserService);
 
         return http.build();

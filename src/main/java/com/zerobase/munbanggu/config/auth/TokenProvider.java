@@ -1,9 +1,7 @@
 package com.zerobase.munbanggu.config.auth;
 
 import static com.zerobase.munbanggu.user.exception.ErrorCode.INVALID_TOKEN;
-import static com.zerobase.munbanggu.user.exception.ErrorCode.NOT_FOUND_EMAIL;
 
-import com.zerobase.munbanggu.user.model.entity.User;
 import com.zerobase.munbanggu.user.repository.RefreshTokenRepository;
 import com.zerobase.munbanggu.user.repository.UserRepository;
 import io.jsonwebtoken.JwtException;
@@ -16,12 +14,9 @@ import java.util.HashMap;
 import java.util.Map;
 import javax.annotation.PostConstruct;
 import javax.crypto.SecretKey;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
 import javax.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -29,9 +24,6 @@ import org.springframework.util.StringUtils;
 @Service
 @RequiredArgsConstructor
 public class TokenProvider {
-
-    @PersistenceContext
-    private EntityManager entityManager;
 
     private Key key;
 
@@ -57,29 +49,20 @@ public class TokenProvider {
     }
 
 
-    public String generateAccessToken(String username, String authority) {
+    public String generateAccessToken(Long userId, String authority) {
         Date expiration = new Date(new Date().getTime() + accessTokenExpirationTimeInSeconds);
-        return generateToken(username, authority, expiration);
+        return generateToken(userId, authority, expiration);
     }
 
     @Transactional
-    public String generateRefreshToken(String username, String authority) {
+    public String generateRefreshToken(Long userId, String authority) {
         Date expiration = new Date(new Date().getTime() + refreshTokenExpirationTimeInSeconds);
-        String token = generateToken(username, authority, expiration);
-        User user = userRepository.findByEmail(username)
-                .orElseThrow(() -> new UsernameNotFoundException(NOT_FOUND_EMAIL.getMessage()));
-        user = entityManager.merge(user);
-
-//        refreshTokenRepository.save(RefreshToken.builder()
-//                .token(token)
-//                .user(user)
-//                .build());
-        return token;
+        return generateToken(userId, authority, expiration);
     }
 
-    private String generateToken(String username, String authority, Date expiration) {
+    private String generateToken(Long userId, String authority, Date expiration) {
         return Jwts.builder()
-                .subject(username)
+                .subject(String.valueOf(userId))
                 .claims(getClaims(authority))
                 .issuedAt(new Date())
                 .expiration(expiration)

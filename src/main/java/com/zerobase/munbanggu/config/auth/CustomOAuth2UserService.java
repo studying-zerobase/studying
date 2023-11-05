@@ -30,10 +30,10 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         OAuthAttributes attributes = OAuthAttributes.of(registrationId, userNameAttributeName,
                 oAuth2User.getAttributes());
 
-        // TODO: 프로필 사진 저장해야할까?
         User user = saveOrUpdate(attributes);
 
-        return new CustomOAuth2User(user, Collections.singleton(new SimpleGrantedAuthority(user.getRoleKey())),
+        return new CustomOAuth2User(user, attributes.getAuthProvider(),
+                Collections.singleton(new SimpleGrantedAuthority(user.getRoleKey())),
                 attributes.getAttributes(), attributes.getNameAttributeKey());
     }
 
