@@ -2,6 +2,7 @@ package com.zerobase.munbanggu.user.model.entity;
 
 import com.zerobase.munbanggu.user.type.AuthProvider;
 import java.time.LocalDateTime;
+import javax.management.relation.Role;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EntityListeners;
@@ -42,7 +43,8 @@ public class User {
 
     @Enumerated(EnumType.STRING)
     private AuthProvider authProvider;
-
+    @Enumerated(EnumType.STRING)
+    private Role role;
     private String phone;
 
     private String profileImageUrl;
@@ -52,4 +54,6 @@ public class User {
 
     @CreatedDate
     private LocalDateTime createdDate;
+
+    private LocalDateTime deleteDate;
 }

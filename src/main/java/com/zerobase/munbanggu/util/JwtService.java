@@ -9,6 +9,9 @@ import io.jsonwebtoken.security.Keys;
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
+import javax.management.relation.Role;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -18,18 +21,27 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class JwtService {
     private final String SECRET_KEY = "SecretKey_ALSO32Byte";
-    private final long TOKEN_VALID_TIME = 1000L * 60 * 60 * 24 * 2; // 만료 시간 : 1일
+    private final long TOKEN_VALID_TIME = 1000L * 60 * 60 * 24 * 2; // 만료 시간 : 2일
 
+    private final Set<String> blacklistedTokens = new HashSet<>();
 
-    public String createToken(Long id, String userName) {
+    public void logout(String token) {
+        blacklistedTokens.add(token); // 블랙리스트에 토큰 추가
+    }
+
+    // 토큰이 블랙리스트에 있는지 확인
+    public boolean isBlacklisted(String token) {
+        return blacklistedTokens.contains(token);
+    }
+
+    public String createToken(Long id, String email, Role userType) {
         Claims claims = Jwts.claims()
                 .setId(id.toString())
-                .setSubject(userName);
+                .setSubject(email);
 
-
+        claims.put("roles", userType);
         Date nowTime = new Date();
-        //byte[] keyBytes = SECRET_KEY.getBytes(StandardCharsets.UTF_8);
-        //Key key = Keys.hmacShaKeyFor(keyBytes);
+
         Key key = Keys.secretKeyFor(SignatureAlgorithm.HS256);
         return Jwts.builder()
                 .setClaims(claims)
