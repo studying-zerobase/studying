@@ -8,6 +8,10 @@ import org.springframework.web.bind.annotation.GetMapping;
 import com.zerobase.munbanggu.dto.SignInDto;
 import com.zerobase.munbanggu.user.service.UserService;
 import com.zerobase.munbanggu.util.JwtService;
+import com.zerobase.munbanggu.user.service.SendMailService;
+import com.zerobase.munbanggu.user.service.SendMessageService;
+import com.zerobase.munbanggu.user.type.AuthenticationStatus;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -22,6 +26,8 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthController {
     private final UserService userService;
     private final JwtService jwtService;
+    private final SendMailService sendMailService;
+    private final SendMessageService sendMessageService;
 
     private static final String AUTH_HEADER = "Authorization";
 
@@ -42,7 +48,6 @@ public class AuthController {
         return ResponseEntity.ok("로그아웃");
     }
 
-
     private final AuthService authService;
 
     @PostMapping("/logout")
@@ -51,10 +56,25 @@ public class AuthController {
         authService.logout(token);
         return ResponseEntity.ok().build();
     }
+  
+    @PostMapping("/email-send") //이메일 발송
+    public ResponseEntity<AuthenticationStatus> sendMail(@RequestBody Map<String,String> req){
+        return ResponseEntity.ok(sendMailService.sendMailVerification(req.get("email")));
+    }
 
-    @GetMapping("/test")
-    public ResponseEntity<String> test() {
-        System.out.println("test");
-        return ResponseEntity.ok().body("test");
+    @PostMapping("/email-auth") //이메일 인증
+    public ResponseEntity<AuthenticationStatus> verifyMail(@RequestBody Map<String,String> req){
+        return ResponseEntity.ok(sendMailService.verifyCode(req.get("email"),req.get("code")));
+    }
+
+    @PostMapping("/phone-send") // 핸드폰 인증번호 발송
+    public ResponseEntity<AuthenticationStatus> sendSMS(@RequestBody Map<String,String> req){
+        return ResponseEntity.ok(sendMessageService.sendMessage(req.get("phoneNumber")));
+    }
+
+    @PostMapping("/phone-auth") // 핸드폰 인증
+    public ResponseEntity<AuthenticationStatus> verifySMS(@RequestBody Map<String,String> req){
+        return ResponseEntity.ok(sendMessageService.verifyCode(req.get("phoneNumber"),req.get("code")));
+
     }
 }
