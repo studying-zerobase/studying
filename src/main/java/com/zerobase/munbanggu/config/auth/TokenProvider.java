@@ -113,7 +113,7 @@ public class TokenProvider {
             return true;
         } catch (JwtException e) {
             log.error("JwtException = " + e.getMessage());
-            throw new InvalidTokenException(INVALID_TOKEN.getMessage());
+            throw new InvalidTokenException(INVALID_TOKEN);
         }
     }
 

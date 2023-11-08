@@ -24,7 +24,8 @@ public class OAuth2FailureHandler implements AuthenticationFailureHandler {
             response.setStatus(HttpServletResponse.SC_CONFLICT);
 
             ObjectMapper om = new ObjectMapper();
-            String jsonResponse = om.writeValueAsString(new ErrorResponse(ErrorCode.EMAIL_CONFLICT.getMessage()));
+            String jsonResponse = om.writeValueAsString(
+                    new ErrorResponse(ErrorCode.EMAIL_CONFLICT, ErrorCode.EMAIL_CONFLICT.getMessage()));
 
             response.getWriter().write(jsonResponse);
             response.getWriter().flush();
