@@ -9,7 +9,8 @@ public enum ErrorCode {
     EMAIL_CONFLICT("이미 가입된 이메일 입니다. 다른 방법으로 로그인해 주세요."),
     NOT_FOUND_EMAIL("가입되지 않은 이메일입니다."),
     INVALID_TOKEN("토큰이 유효하지 않습니다."),
-    NOT_FOUND_USER_ID("가입되지 않은 회원입니다.");
+    NOT_FOUND_USER_ID("가입되지 않은 회원입니다."),
+    INVALID_REQUEST_BODY("");
 
     private final String message;
 }

@@ -2,28 +2,22 @@ package com.zerobase.munbanggu.studyboard.model.dto;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.zerobase.munbanggu.validation.FutureDate;
+import com.zerobase.munbanggu.validation.OptionSize;
 import java.time.LocalDateTime;
-import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
+import javax.validation.constraints.NotNull;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.springframework.format.annotation.DateTimeFormat;
 
 @Getter
 @Setter
 public class VoteRequest {
 
+    @NotNull(message = "투표 제목은 필수 입력사항 입니다.")
     private String title;
 
+    @OptionSize
     private List<VoteOptionRequest> options;
 
     @FutureDate
