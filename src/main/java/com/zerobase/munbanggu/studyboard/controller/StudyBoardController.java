@@ -1,6 +1,7 @@
 package com.zerobase.munbanggu.studyboard.controller;
 
 import com.zerobase.munbanggu.dto.ErrorResponse;
+import com.zerobase.munbanggu.studyboard.exception.NotFoundPostException;
 import com.zerobase.munbanggu.studyboard.model.dto.PostRequest;
 import com.zerobase.munbanggu.studyboard.service.StudyBoardService;
 import com.zerobase.munbanggu.type.ErrorCode;
@@ -12,6 +13,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -57,6 +59,18 @@ public class StudyBoardController {
                     .body(ErrorResponse.of(ErrorCode.INVALID_REQUEST_BODY, errorMap));
         }
         return ResponseEntity.ok().body(studyBoardService.update(request, postId));
+    }
+
+    @DeleteMapping("/{study_id}/post/{post_id}")
+    public ResponseEntity<?> delete(@PathVariable("study_id") Long studyId, @PathVariable("post_id") Long postId) {
+
+        try {
+            studyBoardService.delete(postId);
+            return ResponseEntity.ok().body("삭제되었습니다.");
+        } catch (NotFoundPostException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(ErrorResponse.of(ErrorCode.POST_NOT_FOUND, ErrorCode.POST_NOT_FOUND.getDescription()));
+        }
     }
 
 }

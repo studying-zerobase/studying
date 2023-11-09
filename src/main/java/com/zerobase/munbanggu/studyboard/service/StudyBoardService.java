@@ -47,6 +47,19 @@ public class StudyBoardService {
         return PostResponse.from(studyBoardPostRepository.save(post));
     }
 
+    @Transactional
+    public void delete(Long postId) {
+        Optional<StudyBoardPost> optionalPost = studyBoardPostRepository.findById(postId);
+        if (optionalPost.isPresent()) {
+            if (optionalPost.get().getType() == Type.VOTE) {
+                voteRepository.deleteById(optionalPost.get().getVote().getId());
+            }
+            studyBoardPostRepository.deleteById(postId);
+        } else {
+            throw new NotFoundPostException(ErrorCode.POST_NOT_FOUND);
+        }
+    }
+
     private User findUser(Long userId) {
         return userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundUserException(ErrorCode.NOT_FOUND_USER_ID));
