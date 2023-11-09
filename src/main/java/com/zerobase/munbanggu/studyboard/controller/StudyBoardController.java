@@ -3,6 +3,7 @@ package com.zerobase.munbanggu.studyboard.controller;
 import com.zerobase.munbanggu.studyboard.model.dto.PostRequest;
 import com.zerobase.munbanggu.studyboard.model.dto.PostResponse;
 import com.zerobase.munbanggu.studyboard.service.StudyBoardService;
+import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -20,7 +21,7 @@ public class StudyBoardController {
 
     @PostMapping("/{study_id}/post")
     public ResponseEntity<PostResponse> create(@PathVariable("study_id") Long id,
-            @RequestBody PostRequest request) {
+           @Valid @RequestBody PostRequest request) {
         return ResponseEntity.ok().body(studyBoardService.create(request));
     }
 

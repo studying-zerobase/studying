@@ -6,6 +6,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.zerobase.munbanggu.validation.FutureDate;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
@@ -25,7 +26,7 @@ public class VoteRequest {
 
     private List<VoteOptionRequest> options;
 
-//    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @FutureDate
     private LocalDateTime endDate;
 
     @JsonCreator
@@ -36,8 +37,5 @@ public class VoteRequest {
         this.title = title;
         this.options = options;
         this.endDate = endDate;
-
     }
-
-
 }
