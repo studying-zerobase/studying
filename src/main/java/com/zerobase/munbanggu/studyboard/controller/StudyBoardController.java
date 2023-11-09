@@ -3,7 +3,7 @@ package com.zerobase.munbanggu.studyboard.controller;
 import com.zerobase.munbanggu.dto.ErrorResponse;
 import com.zerobase.munbanggu.studyboard.model.dto.PostRequest;
 import com.zerobase.munbanggu.studyboard.service.StudyBoardService;
-import com.zerobase.munbanggu.user.exception.ErrorCode;
+import com.zerobase.munbanggu.type.ErrorCode;
 import java.util.HashMap;
 import java.util.Map;
 import javax.validation.Valid;

@@ -1,14 +1,14 @@
-package com.zerobase.munbanggu.user.exception;
+package com.zerobase.munbanggu.studyboard.exception;
 
 import com.zerobase.munbanggu.type.ErrorCode;
 import lombok.Getter;
 
 @Getter
-public class NotFoundUserException extends RuntimeException {
+public class NotFoundPostException extends RuntimeException {
 
     private final ErrorCode errorCode;
 
-    public NotFoundUserException(ErrorCode errorCode) {
+    public NotFoundPostException(ErrorCode errorCode) {
         super(errorCode.getDescription());
         this.errorCode = errorCode;
     }

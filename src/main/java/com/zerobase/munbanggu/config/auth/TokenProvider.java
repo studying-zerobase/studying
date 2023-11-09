@@ -2,6 +2,7 @@ package com.zerobase.munbanggu.config.auth;
 
 import static com.zerobase.munbanggu.user.exception.ErrorCode.INVALID_TOKEN;
 
+import com.zerobase.munbanggu.type.ErrorCode;
 import com.zerobase.munbanggu.user.exception.InvalidTokenException;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
@@ -113,7 +114,7 @@ public class TokenProvider {
             return true;
         } catch (JwtException e) {
             log.error("JwtException = " + e.getMessage());
-            throw new InvalidTokenException(INVALID_TOKEN);
+            throw new InvalidTokenException(ErrorCode.INVALID_TOKEN);
         }
     }
 
