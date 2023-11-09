@@ -28,6 +28,6 @@ class FutureDateValidator implements ConstraintValidator<FutureDate, LocalDateTi
     @Override
     public boolean isValid(LocalDateTime value, ConstraintValidatorContext context) {
         LocalDateTime now = LocalDateTime.now();
-        return value.isAfter(now);
+        return value != null && value.isAfter(now);
     }
 }
