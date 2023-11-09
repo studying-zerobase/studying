@@ -1,7 +1,7 @@
 package com.zerobase.munbanggu.studyboard.service;
 
-import com.zerobase.munbanggu.studyboard.model.dto.StudyBoardPostRequest;
-import com.zerobase.munbanggu.studyboard.model.dto.StudyBoardPostResponse;
+import com.zerobase.munbanggu.studyboard.model.dto.PostRequest;
+import com.zerobase.munbanggu.studyboard.model.dto.PostResponse;
 import com.zerobase.munbanggu.studyboard.model.dto.VoteOptionRequest;
 import com.zerobase.munbanggu.studyboard.model.dto.VoteRequest;
 import com.zerobase.munbanggu.studyboard.repository.StudyBoardPostRepository;
@@ -21,10 +21,10 @@ import org.springframework.test.context.jdbc.SqlGroup;
 @SqlGroup({
         @Sql(value = "/sql/service-test-data.sql", executionPhase = ExecutionPhase.BEFORE_TEST_METHOD),
 })
-class StudyBoardPostServiceTest {
+class StudyBoardServiceTest {
 
     @Autowired
-    private StudyBoardPostService studyBoardPostService;
+    private StudyBoardService studyBoardService;
 
     @Autowired
     private StudyBoardPostRepository studyBoardPostRepository;
@@ -46,7 +46,7 @@ class StudyBoardPostServiceTest {
         LocalDateTime localDateTime = java.time.LocalDateTime.parse(dateTimeAsString, formatter);
 
         VoteRequest voteRequest = new VoteRequest("투표 제목", optionRequests, localDateTime);
-        StudyBoardPostRequest request = StudyBoardPostRequest.builder()
+        PostRequest request = PostRequest.builder()
                 .title("게시글 제목")
                 .content("게시글 내용")
                 .vote(voteRequest)
@@ -54,7 +54,7 @@ class StudyBoardPostServiceTest {
                 .build();
 
         // when
-        StudyBoardPostResponse response = studyBoardPostService.createStudyBoardPost(request);
+        PostResponse response = studyBoardService.create(request);
 
         // then
         Assertions.assertThat(response.getTitle()).isEqualTo("게시글 제목");

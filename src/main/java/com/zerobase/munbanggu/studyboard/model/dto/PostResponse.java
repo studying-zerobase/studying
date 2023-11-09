@@ -9,7 +9,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Builder
-public class StudyBoardPostResponse {
+public class PostResponse {
 
     private Long id;
 
@@ -17,8 +17,8 @@ public class StudyBoardPostResponse {
 
     private LocalDateTime createdDate;
 
-    public static StudyBoardPostResponse from(StudyBoardPost post) {
-        return StudyBoardPostResponse.builder().id(post.getId()).title(post.getTitle())
+    public static PostResponse from(StudyBoardPost post) {
+        return PostResponse.builder().id(post.getId()).title(post.getTitle())
                 .createdDate(post.getCreatedDate()).build();
 
     }
