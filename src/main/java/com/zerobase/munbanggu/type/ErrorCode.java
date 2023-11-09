@@ -19,7 +19,8 @@ public enum ErrorCode {
     INVALID_REQUEST_BODY(""),
 
     // studyboard
-    POST_NOT_FOUND("등록되지 않은 게시글 id 입니다.");
+    POST_NOT_FOUND("등록되지 않은 게시글 id 입니다."),
+    VOTE_NOT_FOUND("등록되지 않은 투표입니다."),;
 
     private final String description;
 }

@@ -14,7 +14,7 @@ import lombok.Setter;
 @Setter
 public class VoteRequest {
 
-    @NotNull(message = "투표 제목은 필수 입력사항 입니다.")
+    @NotNull(message = "투표 제목은 필수 입력 사항입니다.")
     private String title;
 
     @OptionSize

@@ -12,6 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -45,6 +46,17 @@ public class StudyBoardController {
             errorMap.put(simpleFieldName, fieldError.getDefaultMessage());
         }
         return errorMap;
+    }
+
+    @PatchMapping("/{study_id}/post/{post_id}")
+    public ResponseEntity<?> update(@PathVariable("study_id") Long studyId, @PathVariable("post_id") Long postId,
+            @Valid @RequestBody PostRequest request, BindingResult result) {
+        if (result.hasErrors()) {
+            Map<String, String> errorMap = buildErrorMap(result);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(ErrorResponse.of(ErrorCode.INVALID_REQUEST_BODY, errorMap));
+        }
+        return ResponseEntity.ok().body(studyBoardService.update(request, postId));
     }
 
 }
