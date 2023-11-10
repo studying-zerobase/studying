@@ -2,6 +2,8 @@ package com.zerobase.munbanggu.user.service;
 import static com.zerobase.munbanggu.user.type.RedisTime.MAIL_VALID;
 import com.zerobase.munbanggu.user.dto.MailDto;
 import com.zerobase.munbanggu.user.type.AuthenticationStatus;
+import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 import org.apache.commons.lang3.RandomStringUtils;
 
@@ -10,6 +12,7 @@ import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jsoup.Jsoup;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Component;
@@ -49,7 +52,7 @@ public class SendMailService {
         try {
             message.addRecipients(Message.RecipientType.TO, dto.getTo());
             message.setSubject(dto.getSubject());
-            message.setText(setContext(dto.getEmailValue(), dto.getTemplate()), MAIL_CHARSET,"html");
+            message.setText(setContext(dto.getEmailValue(), dto.getTemplate()), MAIL_CHARSET);
             message.setFrom(new InternetAddress(id,"munbanggu"));
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -65,17 +68,29 @@ public class SendMailService {
         return springTemplateEngine.process(template, context);
     }
 
-    public AuthenticationStatus sendMailVerification(String email){
-        String code = RandomStringUtils.random(CODE_LENGTH,true,true);
+    public AuthenticationStatus sendMailVerification(String email) {
+        final String  TEMPLATE_NAME = "mailVerification.html";
+        final String PATH = "src/main/resources/templates/"+TEMPLATE_NAME;
+
+        String subject = "";
+        String code = RandomStringUtils.random(CODE_LENGTH, true, true);
+
         log.info("\n>>>>>> sender: " + sender + "code: "+code);
 
-        String subject = "[문방구] 메일 인증 안내";
+        try {
+            File input = new File(PATH);
+            subject = Jsoup.parse(input,MAIL_CHARSET).getElementsByTag("title").iterator().next().text();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
         HashMap<String,String> emailValue = new HashMap<>();
         emailValue.put("code",code);
 
         log.info("\n emailValue : "+emailValue);
+
         try{
-            MailDto dto = setTemplate(email,subject, "mailVerification",emailValue);
+            MailDto dto = setTemplate(email, subject, TEMPLATE_NAME, emailValue);
             MimeMessage mimeMessage = createMessage(dto);
             javaMailSender.send(mimeMessage);
             redisUtil.setData(email, code, MAIL_VALID.getTime());
@@ -94,7 +109,6 @@ public class SendMailService {
         } catch (Exception e) {
             log.info(e.getMessage());
             return AuthenticationStatus.FAIL;
-
         }
 
         if (code.equals(input)) {
