@@ -117,9 +117,9 @@ public class StudyBoardService {
         post.setContent(request.getContent());
 
         if (request.getType() == Type.VOTE) {
-            Optional<Vote> optionalVote = findVote(post.getVote().getId());
-            if (optionalVote.isPresent()) {
-                Vote vote = optionalVote.get();
+            if (post.getVote() != null) {
+                Vote vote = findVote(post.getVote().getId()).orElseThrow(
+                        () -> new NotFoundPostException(ErrorCode.POST_NOT_FOUND));
                 vote.setTitle(request.getVote().getTitle());
                 updateVoteOptions(vote.getId(), request.getVote().getOptions());
             } else {
