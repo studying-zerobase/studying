@@ -1,13 +1,16 @@
 package com.zerobase.munbanggu.user.controller;
 
-import com.zerobase.munbanggu.user.dto.UserUpdateDto;
+import com.zerobase.munbanggu.user.dto.GetUserDto;
+//import com.zerobase.munbanggu.user.dto.UserUpdateDto;
 import com.zerobase.munbanggu.user.model.entity.User;
 import com.zerobase.munbanggu.user.service.UserService;
 import com.zerobase.munbanggu.util.JwtService;
+import java.util.Map;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -23,7 +26,7 @@ public class UserController {
     private final UserService userService;
     @PutMapping("{user_id}")
     public ResponseEntity<?> updateUser( @RequestHeader(name = AUTH_HEADER) String token,
-            @RequestBody UserUpdateDto UserUpdateDto){
+            @RequestBody GetUserDto getUserDto){
 
         Optional<User> user = userService.getUser(jwtService.getIdFromToken(token));
         if (user.isPresent()) {
@@ -31,13 +34,18 @@ public class UserController {
             return ResponseEntity.ok(
                     userService.updateUser(
                             jwtService.getIdFromToken(token),
-                            UserUpdateDto
+                            getUserDto
                     )
             );
         }else {
             // 토큰이 유효하지 않은 경우 처리
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("인증 실패");
         }
+    }
+
+    @GetMapping("{user_id}")
+    public ResponseEntity<GetUserDto> getUserInfo(@RequestBody Map<String,String> req){
+        return ResponseEntity.ok(userService.getInfo(req.get("email")));
     }
 
 }
