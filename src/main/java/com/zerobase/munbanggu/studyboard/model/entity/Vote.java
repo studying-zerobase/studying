@@ -1,5 +1,6 @@
 package com.zerobase.munbanggu.studyboard.model.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -31,6 +32,7 @@ public class Vote {
 
     @Builder.Default
     @OneToMany(mappedBy = "vote", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
     private List<VoteOption> options = new ArrayList<>();
 
     private LocalDateTime endDate;

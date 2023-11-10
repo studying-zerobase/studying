@@ -20,7 +20,6 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -50,11 +49,11 @@ public class StudyBoardService {
         return PostResponse.from(studyBoardPostRepository.save(post));
     }
 
-    public Page<StudyBoardPost> search(String keyword) {
-        int pageNumber = 0;
-        int pageSize = 10;
-        Pageable pageable = PageRequest.of(pageNumber, pageSize);
-        return studyBoardPostRepository.findByTitleOrVoteTitleContaining(keyword, pageable);
+    public Page<PostResponse> search(String keyword, Pageable pageable) {
+        Page<StudyBoardPost> postPage = studyBoardPostRepository.findByTitleContainingIgnoreCase(
+                keyword, pageable);
+
+        return postPage.map(PostResponse::from);
     }
 
 
@@ -149,20 +148,6 @@ public class StudyBoardService {
         List<String> newOptionTexts = newOptions.stream().map(VoteOptionRequest::getOptionText)
                 .collect(Collectors.toList());
 
-//        List<String> additions = new ArrayList<>(newOptionTexts);
-//        additions.removeAll(existingOptionTexts);
-//
-//        List<String> removals = new ArrayList<>(existingOptionTexts);
-//        removals.removeAll(newOptionTexts);
-//        existingOptions.removeIf(option -> removals.contains(option.getOptionText()));
-//
-//        for (String addition : additions) {
-//            VoteOption voteOption = VoteOption.builder()
-//                    .optionText(addition)
-//                    .vote(vote)
-//                    .build();
-//            vote.addVoteOption(voteOption);
-//        }
         handleAdditions(vote, newOptionTexts, existingOptionTexts);
         handleRemovals(existingOptions, existingOptionTexts, newOptionTexts);
 

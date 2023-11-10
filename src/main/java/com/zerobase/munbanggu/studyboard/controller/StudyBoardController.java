@@ -1,14 +1,18 @@
 package com.zerobase.munbanggu.studyboard.controller;
 
 import com.zerobase.munbanggu.dto.ErrorResponse;
+import com.zerobase.munbanggu.dto.PageResponse;
 import com.zerobase.munbanggu.studyboard.exception.NotFoundPostException;
 import com.zerobase.munbanggu.studyboard.model.dto.PostRequest;
+import com.zerobase.munbanggu.studyboard.model.dto.PostResponse;
 import com.zerobase.munbanggu.studyboard.service.StudyBoardService;
 import com.zerobase.munbanggu.type.ErrorCode;
 import java.util.HashMap;
 import java.util.Map;
 import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
@@ -76,10 +80,10 @@ public class StudyBoardController {
     }
 
     @GetMapping("/{study_id}/post")
-    public ResponseEntity<?> search(@PathVariable("study_id") Long studyId,
-            @RequestParam(value = "keyword") String keyword) {
+    public ResponseEntity<PageResponse<PostResponse>> search(@PathVariable("study_id") Long studyId,
+            @RequestParam(value = "keyword") String keyword, @PageableDefault() Pageable pageable) {
 
-        return ResponseEntity.ok().body(studyBoardService.search(keyword));
+        return ResponseEntity.ok().body(PageResponse.from(studyBoardService.search(keyword, pageable)));
 
     }
 

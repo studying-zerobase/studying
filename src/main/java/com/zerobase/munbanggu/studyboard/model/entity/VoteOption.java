@@ -1,5 +1,6 @@
 package com.zerobase.munbanggu.studyboard.model.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -28,6 +29,7 @@ public class VoteOption {
 
     @ManyToOne
     @JoinColumn(name = "vote_id")
+    @JsonIgnore
     private Vote vote;
 //
 //    @ManyToMany
