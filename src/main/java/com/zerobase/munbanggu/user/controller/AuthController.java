@@ -2,6 +2,7 @@ package com.zerobase.munbanggu.user.controller;
 
 
 import com.zerobase.munbanggu.dto.TokenResponse;
+import com.zerobase.munbanggu.user.dto.MailVerificationDto;
 import com.zerobase.munbanggu.user.service.AuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -12,10 +13,12 @@ import com.zerobase.munbanggu.user.service.SendMailService;
 import com.zerobase.munbanggu.user.service.SendMessageService;
 import com.zerobase.munbanggu.user.type.AuthenticationStatus;
 import java.util.Map;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -56,14 +59,25 @@ public class AuthController {
         return ResponseEntity.ok().build();
     }
 
+
+    /**
+     * 메일 발송 controller
+     * @param req - email
+     * @return AuthenticationStatus.SUCCESS / AuthenticationStatus.FAIL (발송성공여부)
+     */
     @PostMapping("/email-send") //이메일 발송
     public ResponseEntity<AuthenticationStatus> sendMail(@RequestBody Map<String, String> req) {
         return ResponseEntity.ok(sendMailService.sendMailVerification(req.get("email")));
     }
 
-    @PostMapping("/email-auth") //이메일 인증
-    public ResponseEntity<AuthenticationStatus> verifyMail(@RequestBody Map<String, String> req) {
-        return ResponseEntity.ok(sendMailService.verifyCode(req.get("email"), req.get("code")));
+    /**
+     * 메일 인증 controller
+     * @param mailVerificationDto - email, uuidToken
+     * @return AuthenticationStatus.SUCCESS / AuthenticationStatus.FAIL (인증성공여부)
+     */
+    @GetMapping(value = "/verify-email") //이메일 인증
+    public ResponseEntity<AuthenticationStatus> verifyMail(MailVerificationDto mailVerificationDto) {
+        return ResponseEntity.ok(sendMailService.verifyEmail(mailVerificationDto.getEmail(), mailVerificationDto.getToken()));
     }
 
     @PostMapping("/phone-send") // 핸드폰 인증번호 발송

@@ -26,7 +26,8 @@ class SendMailServiceTest {
 
     @Test
     public void verifyCodeTest(){
-        String inputCode = "P94NBvWTCR";
-        assert (sendMailService.verifyCode(recipient_email,inputCode).equals(AuthenticationStatus.SUCCESS) );
+        //authService.createVerificationToken 의 토큰값을 abc123 변경 후 테스트 진행
+        String token = "abc123";
+        assert (sendMailService.verifyEmail(recipient_email,token).equals(AuthenticationStatus.SUCCESS) );
     }
 }
