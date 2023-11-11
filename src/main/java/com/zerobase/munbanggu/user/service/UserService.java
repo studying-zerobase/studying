@@ -12,6 +12,8 @@ import com.zerobase.munbanggu.dto.TokenResponse;
 import com.zerobase.munbanggu.user.dto.GetUserDto;
 import com.zerobase.munbanggu.user.dto.SignInDto;
 import com.zerobase.munbanggu.user.dto.UserRegisterDto;
+import com.zerobase.munbanggu.user.exception.InvalidNicknameException;
+import com.zerobase.munbanggu.user.exception.NicknameAlreadyExistsException;
 import com.zerobase.munbanggu.user.exception.UserException;
 import com.zerobase.munbanggu.user.model.entity.User;
 import com.zerobase.munbanggu.user.repository.UserRepository;
@@ -85,6 +87,17 @@ public class UserService {
     }
 
     public void registerUser(UserRegisterDto userDto) {
+        // 닉네임 유효성 검사
+        if (!userDto.getNickname().matches("[가-힣a-zA-Z0-9]{2,10}")) {
+            throw new InvalidNicknameException("Invalid nickname format");
+        }
+
+        // 닉네임 중복 확인
+        userRepository.findByNickname(userDto.getNickname())
+                .ifPresent(u -> {
+                    throw new NicknameAlreadyExistsException("Nickname already exists");
+                });
+
         String encodedPassword = passwordEncoder.encode(userDto.getPassword());
         User user = User.builder()
                 .name(userDto.getName())
