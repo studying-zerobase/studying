@@ -36,9 +36,8 @@ public class StudyBoardService {
     public PostResponse create(PostRequest request) {
         StudyBoardPost post = buildPost(request);
         if (request.getType() == Type.VOTE) {
-            Vote vote = buildVote(request);
-            vote = voteRepository.save(vote);
-            post.setVote(vote);
+            Vote vote = buildVote(request, post);
+            voteRepository.save(vote);
         }
         return PostResponse.from(studyBoardPostRepository.save(post));
     }
@@ -61,9 +60,6 @@ public class StudyBoardService {
     public void delete(Long postId) {
         Optional<StudyBoardPost> optionalPost = studyBoardPostRepository.findById(postId);
         if (optionalPost.isPresent()) {
-            if (optionalPost.get().getType() == Type.VOTE) {
-                voteRepository.deleteById(optionalPost.get().getVote().getId());
-            }
             studyBoardPostRepository.deleteById(postId);
         } else {
             throw new NotFoundPostException(ErrorCode.POST_NOT_FOUND);
@@ -95,10 +91,11 @@ public class StudyBoardService {
                 .build();
     }
 
-    private Vote buildVote(PostRequest request) {
+    private Vote buildVote(PostRequest request, StudyBoardPost post) {
         Vote vote = Vote.builder()
                 .title(request.getVote().getTitle())
                 .endDate(request.getVote().getEndDate())
+                .studyBoardPost(post)
                 .build();
         List<VoteOptionRequest> optionRequests = request.getVote().getOptions();
         optionRequests.forEach(optionRequest -> {
@@ -116,23 +113,9 @@ public class StudyBoardService {
         post.setContent(request.getContent());
 
         if (request.getType() == Type.VOTE) {
-            if (post.getVote() != null) {
-                Vote vote = findVote(post.getVote().getId()).orElseThrow(
-                        () -> new NotFoundPostException(ErrorCode.POST_NOT_FOUND));
-                vote.setTitle(request.getVote().getTitle());
-                updateVoteOptions(vote.getId(), request.getVote().getOptions());
-            } else {
-                Vote newVote = buildVote(request);
-                newVote = voteRepository.save(newVote);
-                post.setVote(newVote);
-            }
-        } else {
-            if (post.getVote() != null) {
-                Long voteId = post.getVote().getId();
-                post.setVote(null);
-                post = studyBoardPostRepository.save(post);
-                voteRepository.deleteById(voteId);
-            }
+            Vote newVote = buildVote(request, post);
+            newVote = voteRepository.save(newVote);
+            post.setVote(newVote);
         }
         return post;
     }

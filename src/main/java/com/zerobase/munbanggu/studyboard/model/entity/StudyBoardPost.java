@@ -3,6 +3,7 @@ package com.zerobase.munbanggu.studyboard.model.entity;
 import com.zerobase.munbanggu.studyboard.type.Type;
 import com.zerobase.munbanggu.user.model.entity.User;
 import java.time.LocalDateTime;
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.EntityListeners;
 import javax.persistence.EnumType;
@@ -55,8 +56,7 @@ public class StudyBoardPost {
     @JoinColumn(name = "user_id")
     private User user;
 
-    @OneToOne
-    @JoinColumn(name = "vote_id")
+    @OneToOne(mappedBy = "studyBoardPost", cascade = CascadeType.ALL, orphanRemoval = true)
     private Vote vote;
 
 //    @ManyToOne
