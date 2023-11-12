@@ -1,6 +1,7 @@
 package com.zerobase.munbanggu.config;
 
 import com.zerobase.munbanggu.config.auth.CustomOAuth2UserService;
+import com.zerobase.munbanggu.config.auth.JwtAuthenticationEntryPoint;
 import com.zerobase.munbanggu.config.auth.JwtAuthenticationFilter;
 import com.zerobase.munbanggu.config.auth.OAuth2FailureHandler;
 import com.zerobase.munbanggu.config.auth.OAuth2SuccessHandler;
@@ -23,6 +24,7 @@ public class SecurityConfig {
     private final OAuth2SuccessHandler oAuth2SuccessHandler;
     private final OAuth2FailureHandler oAuth2FailureHandler;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final JwtAuthenticationEntryPoint unauthorizedHandler;
 
     @Bean
     public BCryptPasswordEncoder bCryptPasswordEncoder() {
@@ -38,8 +40,10 @@ public class SecurityConfig {
                 .and()
                 .formLogin().disable()
                 .httpBasic().disable()
+                .exceptionHandling().authenticationEntryPoint(unauthorizedHandler)
+                .and()
                 .authorizeHttpRequests()
-                .antMatchers("/", "/css/**", "/images/**", "/js/**", "/h2-console/**").permitAll()
+                .antMatchers("/", "/css/**", "/images/**", "/js/**", "/h2-console/**", "/api/auth/**").permitAll()
                 .anyRequest().authenticated()
                 .and()
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
