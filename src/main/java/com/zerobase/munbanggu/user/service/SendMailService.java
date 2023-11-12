@@ -3,6 +3,7 @@ import static com.zerobase.munbanggu.user.type.RedisTime.MAIL_VALID;
 
 import com.zerobase.munbanggu.type.ErrorCode;
 import com.zerobase.munbanggu.user.dto.MailDto;
+import com.zerobase.munbanggu.user.dto.MailVerificationDto;
 import com.zerobase.munbanggu.user.exception.UserException;
 import com.zerobase.munbanggu.user.repository.UserRepository;
 import com.zerobase.munbanggu.user.type.AuthenticationStatus;
@@ -43,7 +44,7 @@ public class SendMailService {
     private String sender;
 
     private MailDto setTemplate(String to,String path){
-        String subject= "";
+        String subject;
         String[] split_path = path.split("/");
         String template = split_path[split_path.length-1];
 
@@ -105,23 +106,28 @@ public class SendMailService {
         }
     }
 
-    public AuthenticationStatus verifyEmail(String email, String token) {
-        String saved_token = redisUtil.getData(email);
+    /**
+     * 이메일 링크 인증
+     * @param mailVerificationDto - email,token
+     * @return AuthenticationStatus(SUCCESS/FAIL)
+     */
+    public AuthenticationStatus verifyEmail(MailVerificationDto mailVerificationDto) {
+        String saved_token = redisUtil.getData(mailVerificationDto.getEmail());
 
         // redis에 저장되어 있지 않으면 오류 반환
         if (saved_token==null)
             throw new UserException(ErrorCode.INVALID_TOKEN);
 
         // redis에 저장된 토큰과 일치하지 않으면 오류 반환
-        if (!saved_token.equals(token))
+        if (!saved_token.equals(mailVerificationDto.getToken()))
             throw new UserException(ErrorCode.INVALID_EMAIL);
 
         // 회원이 아니면 오류 반환
-        userRepository.findByEmail(email)
-            .orElseThrow(() -> new UserException(ErrorCode.EMAIL_NOT_FOUND));
+        userRepository.findByEmail(mailVerificationDto.getEmail())
+            .orElseThrow(() -> new UserException(ErrorCode.EMAIL_NOT_EXISTS));
 
         // redis에서 정보삭제
-        redisUtil.deleteData(email);
+        redisUtil.deleteData(mailVerificationDto.getEmail());
 
         return AuthenticationStatus.SUCCESS;
     }

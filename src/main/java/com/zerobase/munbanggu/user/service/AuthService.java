@@ -25,9 +25,9 @@ public class AuthService {
         }
     }
 
-    public String createVerificationToken(String email, long time){
+    public String createVerificationToken(String key, long time){
         String token = UUID.randomUUID().toString();
-        redisUtil.setData(email, token, time);
+        redisUtil.setData(key, token, time);
         return token;
     }
 }
