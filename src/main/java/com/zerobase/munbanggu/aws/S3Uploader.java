@@ -3,7 +3,6 @@ package com.zerobase.munbanggu.aws;
 import com.amazonaws.AmazonServiceException;
 import com.amazonaws.SdkClientException;
 import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.ListObjectsV2Result;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
@@ -49,13 +48,13 @@ public class S3Uploader {
                 contentType = "text/csv";
                 break;
         }
-
         try {
             ObjectMetadata metadata = new ObjectMetadata();
             metadata.setContentType(contentType);
+            metadata.setContentLength(multipartFile.getSize());
 
-            amazonS3.putObject(new PutObjectRequest(bucket, fileName, multipartFile.getInputStream(), metadata)
-                    .withCannedAcl(CannedAccessControlList.PublicRead));
+            amazonS3.putObject(new PutObjectRequest(bucket, fileName, multipartFile.getInputStream(), metadata));
+// ACL 관련 주석                    .withCannedAcl(CannedAccessControlList.PublicRead));
         } catch (AmazonServiceException e) {
             e.printStackTrace();
         } catch (SdkClientException e) {
@@ -70,5 +69,17 @@ public class S3Uploader {
             System.out.println("object = " + object.toString());
         }
         return amazonS3.getUrl(bucket, fileName).toString();
+    }
+
+    public void deleteFile(String fileName) {
+        try {
+            amazonS3.deleteObject(bucket, fileName);
+        } catch (AmazonServiceException e) {
+            e.printStackTrace();
+            throw new RuntimeException("S3에서 파일 삭제 중 에러 발생", e);
+        } catch (SdkClientException e) {
+            e.printStackTrace();
+            throw new RuntimeException("S3 클라이언트에서 에러 발생", e);
+        }
     }
 }

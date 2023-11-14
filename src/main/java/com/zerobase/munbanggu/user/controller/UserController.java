@@ -1,7 +1,5 @@
 package com.zerobase.munbanggu.user.controller;
 
-
-import com.amazonaws.services.s3.AmazonS3Client;
 import com.zerobase.munbanggu.aws.S3Uploader;
 import com.zerobase.munbanggu.user.dto.GetUserDto;
 import com.zerobase.munbanggu.user.dto.UserRegisterDto;
@@ -9,10 +7,10 @@ import com.zerobase.munbanggu.user.model.entity.User;
 import com.zerobase.munbanggu.user.service.UserService;
 import com.zerobase.munbanggu.util.JwtService;
 
+import java.io.IOException;
 import java.util.Map;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
@@ -26,6 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 
 @RestController
@@ -60,7 +59,7 @@ public class UserController {
     public ResponseEntity<GetUserDto> getUserInfo(@RequestBody Map<String,String> req){
         return ResponseEntity.ok(userService.getInfo(req.get("email")));
     }
-  
+
     @Transactional(isolation=Isolation.SERIALIZABLE)
     @PostMapping("/register")
     public ResponseEntity<?> registerUser(@RequestBody UserRegisterDto userDto) {
@@ -68,19 +67,25 @@ public class UserController {
         return ResponseEntity.ok("User registered successfully");
     }
 
-    @PostMapping
-    public ResponseEntity<String> uploadFile(@RequestParam("file") MultipartFilefile) {
+    @PostMapping("my-page/{userId}/upload-profile-image")
+    public ResponseEntity<?> uploadOrUpdateProfileImage(@PathVariable Long userId, @RequestParam("imageFile") MultipartFile imageFile) {
         try {
-            StringfileName=file.getOriginalFilename();
-            StringfileUrl= "https://" + bucket + "/test" +fileName;
-            ObjectMetadatametadata= new ObjectMetadata();
-            metadata.setContentType(file.getContentType());
-            metadata.setContentLength(file.getSize());
-            amazonS3Client.putObject(bucket,fileName,file.getInputStream(),metadata);
-            return ResponseEntity.ok(fileUrl);
-        } catch (IOExceptione) {
+            // 기존 이미지 URL 가져오기 및 삭제
+            String oldImageUrl = userService.getProfileUrl(userId);
+            if (oldImageUrl != null && !oldImageUrl.isEmpty()) {
+                s3Uploader.deleteFile(oldImageUrl);
+            }
+
+            // 새 이미지 업로드 및 URL 반환
+            String newImageUrl = s3Uploader.uploadFile(imageFile);
+
+            // SiteUser의 profileImg 필드 업데이트
+            userService.updateProfileImage(userId, newImageUrl);
+
+            return new ResponseEntity<>(newImageUrl, HttpStatus.OK);
+        } catch (IOException e) {
             e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            return new ResponseEntity<>("Failed to upload image", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 }
