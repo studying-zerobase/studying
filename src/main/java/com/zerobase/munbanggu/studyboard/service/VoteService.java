@@ -17,11 +17,13 @@ import com.zerobase.munbanggu.user.exception.NotFoundUserException;
 import com.zerobase.munbanggu.user.model.entity.User;
 import com.zerobase.munbanggu.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class VoteService {
 
     private final UserRepository userRepository;
@@ -35,8 +37,10 @@ public class VoteService {
         User user = findUser(userId);
         Vote vote = findVote(voteId);
         VoteOption selectedOption = findOption(optionId);
+        log.info("투표 시작 - User : {}, Vote : {}, Option: {}", userId, voteId, optionId);
 
         if (hasUserVoted(userId, voteId)) {
+            log.warn("User {} 이미 Vote {} 에 투표함", userId, voteId);
             throw new AlreadyVotedException(ALREADY_VOTED);
         }
 
@@ -45,6 +49,7 @@ public class VoteService {
                 .vote(vote)
                 .voteOption(selectedOption).build();
         userVoteRepository.save(userVote);
+        log.info("투표 성공 - User : {}, Vote : {}, Option: {}", userId, voteId, optionId);
     }
 
     private User findUser(Long userId) {
