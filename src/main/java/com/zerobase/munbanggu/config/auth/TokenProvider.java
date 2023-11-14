@@ -1,15 +1,12 @@
 package com.zerobase.munbanggu.config.auth;
 
-import static com.zerobase.munbanggu.type.ErrorCode.INVALID_TOKEN;
-
-import com.zerobase.munbanggu.type.ErrorCode;
 import com.zerobase.munbanggu.user.exception.InvalidTokenException;
-import com.zerobase.munbanggu.user.service.RedisUtil;
 import com.zerobase.munbanggu.user.type.Role;
+import com.zerobase.munbanggu.util.RedisUtil;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.io.Decoders;
+import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import java.security.Key;
 import java.util.Collection;
@@ -51,7 +48,7 @@ public class TokenProvider {
 
     @PostConstruct
     public void init() {
-        secretKey = Keys.hmacShaKeyFor(Decoders.BASE64.decode(secret));
+        secretKey = Keys.secretKeyFor(SignatureAlgorithm.HS256);
     }
 
     public String generateAccessTokenOrRefreshToken(Long id, String email, Role role, Long expirationTimeInSeconds) {
@@ -103,7 +100,7 @@ public class TokenProvider {
                 .setClaims(claims)
                 .setIssuedAt(new Date())
                 .setExpiration(expiration)
-                .signWith(secretKey)
+                .signWith(secretKey, SignatureAlgorithm.HS256)
                 .compact();
     }
 
@@ -114,7 +111,7 @@ public class TokenProvider {
         response.addHeader(REFRESH_TOKEN_KEY, AUTHORIZATION_PREFIX + refreshToken);
     }
 
-    public Integer getId(String token) {
+    public Long getId(String token) {
         try {
             Claims claims = Jwts.parserBuilder()
                     .setSigningKey(secretKey)
@@ -122,7 +119,7 @@ public class TokenProvider {
                     .parseClaimsJws(getRawToken(token))
                     .getBody();
 
-            return Integer.parseInt(claims.get("id").toString());
+            return Long.parseLong(claims.get("id").toString());
         } catch (JwtException | NumberFormatException | NullPointerException e) {
             throw new InvalidTokenException("예외");
         }
@@ -149,9 +146,8 @@ public class TokenProvider {
         try {
             Jwts.parserBuilder().setSigningKey(secretKey).build().parseClaimsJws(getRawToken(token));
             return true;
-        } catch (JwtException e) {
-            log.error("JwtException = " + e.getMessage());
-            throw new InvalidTokenException(INVALID_TOKEN.getDescription());
+        }  catch (Exception e) {
+            throw new InvalidTokenException(e.getMessage());
         }
     }
 
