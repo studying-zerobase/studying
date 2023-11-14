@@ -13,4 +13,9 @@ public class StudyBoardExceptionHandler {
     public ResponseEntity<ErrorResponse> notFoundPostExceptionHandler(NotFoundPostException e) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorResponse(e.getErrorCode(), e.getMessage()));
     }
+
+    @ExceptionHandler
+    public ResponseEntity<ErrorResponse> alreadyVotedException(AlreadyVotedException e) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(new ErrorResponse(e.getErrorCode(), e.getMessage()));
+    }
 }

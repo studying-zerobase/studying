@@ -40,7 +40,11 @@ public class Vote {
     @Builder.Default
     @OneToMany(mappedBy = "vote", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
-    private List<VoteOption> options = new ArrayList<>();
+    private final List<VoteOption> options = new ArrayList<>();
+
+    @Builder.Default
+    @OneToMany(mappedBy = "vote", cascade = CascadeType.ALL, orphanRemoval = true)
+    private final List<UserVote> userVotes = new ArrayList<>();
 
     private LocalDateTime endDate;
 
