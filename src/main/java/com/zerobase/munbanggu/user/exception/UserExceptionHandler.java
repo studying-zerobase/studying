@@ -18,4 +18,9 @@ public class UserExceptionHandler {
     public ResponseEntity<ErrorResponse> notFoundUserExceptionHandler(NotFoundUserException e) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorResponse(e.getErrorCode(), e.getMessage()));
     }
+
+    @ExceptionHandler(UserException.class)
+    public ResponseEntity<ErrorResponse> userNotFoundException(UserException e) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorResponse(e.getMessage()));
+    }
 }
