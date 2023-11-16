@@ -17,7 +17,10 @@ public enum ErrorCode {
     EMAIL_NOT_EXISTS("가입되지 않은 이메일입니다."),
     INVALID_EMAIL("이메일이 일치하지 않습니다."),
     INVALID_CODE("인증번호가 일치하지 않습니다."),
-    INVALID_PHONE("핸드폰번호가 일치하지 않습니다.")
+    INVALID_PHONE("핸드폰번호가 일치하지 않습니다."),
+    STUDY_NOT_EXISTS("스터디가 존재하지 않습니다."),
+    CHECKLIST_NOT_EXISTS("일치하는 체크리스트가 존재하지 않습니다"),
+    TOKEN_UNMATCHED("아이디와 토큰정보가 일치하지 않습니다"),
     ;
     private String description;
 }

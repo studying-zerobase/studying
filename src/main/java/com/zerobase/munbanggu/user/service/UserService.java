@@ -3,6 +3,7 @@ package com.zerobase.munbanggu.user.service;
 
 import static com.zerobase.munbanggu.type.ErrorCode.EMAIL_NOT_EXISTS;
 import static com.zerobase.munbanggu.type.ErrorCode.INVALID_CODE;
+import static com.zerobase.munbanggu.type.ErrorCode.INVALID_EMAIL;
 import static com.zerobase.munbanggu.type.ErrorCode.INVALID_PHONE;
 import static com.zerobase.munbanggu.type.ErrorCode.USER_NOT_EXIST;
 import static com.zerobase.munbanggu.type.ErrorCode.USER_WITHDRAWN;
@@ -82,6 +83,12 @@ public class UserService {
         return userRepository.findById(id);
     }
 
+    public User findByIdAndToken(Long tokenId, Long id){
+        if (tokenId.equals(id))
+            return userRepository.findById(id).orElseThrow(() -> new UserException(USER_NOT_EXIST));
+        else
+            throw new UserException(INVALID_EMAIL);
+    }
     public GetUserDto getInfo(String email) {
 
         User user = userRepository.findByEmail(email)

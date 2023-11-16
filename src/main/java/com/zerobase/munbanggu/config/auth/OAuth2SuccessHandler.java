@@ -5,7 +5,7 @@ import static com.zerobase.munbanggu.type.ErrorCode.*;
 import com.zerobase.munbanggu.user.exception.DuplicatedEmailConflictException;
 import com.zerobase.munbanggu.user.model.entity.User;
 import com.zerobase.munbanggu.user.repository.UserRepository;
-import com.zerobase.munbanggu.user.service.RedisUtil;
+import com.zerobase.munbanggu.util.RedisUtil;
 import java.io.IOException;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
