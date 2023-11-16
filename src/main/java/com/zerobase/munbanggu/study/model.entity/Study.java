@@ -32,7 +32,7 @@ public class Study {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String user_id;
+    private Long user_id;
 
     private String title;
 

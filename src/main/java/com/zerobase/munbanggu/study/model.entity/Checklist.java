@@ -8,6 +8,7 @@ import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.ManyToOne;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -28,7 +29,8 @@ public class Checklist {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private Long study_id; // 스터디아이디
+    @ManyToOne
+    private Study study;
 
     private Long user_id;
 

@@ -1,7 +1,6 @@
 package com.zerobase.munbanggu.study.type;
 
 import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
 
 @AllArgsConstructor
 public enum RefundCycle {
