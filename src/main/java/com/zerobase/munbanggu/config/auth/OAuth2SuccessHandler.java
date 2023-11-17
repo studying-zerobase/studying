@@ -1,7 +1,10 @@
 package com.zerobase.munbanggu.config.auth;
 
-import static com.zerobase.munbanggu.type.ErrorCode.*;
+import static com.zerobase.munbanggu.type.ErrorCode.EMAIL_CONFLICT;
+import static com.zerobase.munbanggu.type.ErrorCode.EMAIL_NOT_EXISTS;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.zerobase.munbanggu.dto.TokenResponse;
 import com.zerobase.munbanggu.user.exception.DuplicatedEmailConflictException;
 import com.zerobase.munbanggu.user.model.entity.User;
 import com.zerobase.munbanggu.user.repository.UserRepository;
@@ -46,7 +49,14 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
         saveRefreshTokenInRedis(oAuth2User, refreshToken);
 
-        log.info("redisUtil.getData(): " + redisUtil.getData("RT:"+oAuth2User.getUser().getEmail()));
+        log.info("redisUtil.getData(): " + redisUtil.getData("RT:" + oAuth2User.getUser().getEmail()));
+
+        TokenResponse tokenResponse = TokenResponse.builder()
+                .accessToken(accessToken)
+                .refreshToken(refreshToken)
+                .build();
+        response.setContentType("application/json");
+        response.getWriter().write(new ObjectMapper().writeValueAsString(tokenResponse));
 
         tokenProvider.addAccessRefreshTokenToResponseHeader(response, accessToken, refreshToken);
     }
