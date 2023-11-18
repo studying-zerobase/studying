@@ -1,5 +1,7 @@
 package com.zerobase.munbanggu.study.controller;
 
+import com.zerobase.munbanggu.config.auth.TokenProvider;
+import com.zerobase.munbanggu.study.dto.StudyDto;
 import com.zerobase.munbanggu.study.model.entity.Checklist;
 import com.zerobase.munbanggu.study.model.entity.Study;
 import com.zerobase.munbanggu.study.service.ChecklistService;
@@ -10,31 +12,102 @@ import com.zerobase.munbanggu.user.exception.UserException;
 import com.zerobase.munbanggu.user.model.entity.User;
 import com.zerobase.munbanggu.user.service.UserService;
 import com.zerobase.munbanggu.util.JwtService;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.Collections;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequiredArgsConstructor
 @RequestMapping("/api/study")
+@RequiredArgsConstructor
 public class StudyController {
     private static final String AUTH_HEADER = "Authorization";
-    private final UserService userService;
     private final StudyService studyService;
+    private final UserService userService;
     private final JwtService jwtService;
-    private final ChecklistService checkListService;
+    private final TokenProvider tokenProvider;
+  
+    @PostMapping()
+    public ResponseEntity<?> openStudy(@RequestHeader(name = AUTH_HEADER) String token,@RequestBody StudyDto studyDto) {
 
+        Optional<User> user = userService.getUser(tokenProvider.getId(token));
+        if (user.isPresent()) {
+            Study openedStudy = studyService.openStudy(studyDto);
+            return new ResponseEntity<>(openedStudy, HttpStatus.CREATED);
+        }else {
+            // 토큰이 유효하지 않은 경우 처리
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("인증 실패");
+        }
+    }
+
+    @PutMapping("{study_id}")
+    public ResponseEntity<?> updateStudy(@PathVariable Long studyId,
+            @RequestHeader(name = AUTH_HEADER) String token,
+            @RequestBody StudyDto updatedStudyDto) {
+        if (token == null) {
+            // 'Authorization' 헤더가 누락된 경우 처리
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("토큰이 존재하지 않음");
+        }
+        Optional<User> user = userService.getUser(tokenProvider.getId(token));
+        if (user.isPresent()) {
+            Study updatedStudy = studyService.updateStudy(studyId, updatedStudyDto);
+            return new ResponseEntity<>(updatedStudy, HttpStatus.OK);
+        }else {
+            // 토큰이 유효하지 않은 경우 처리
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("인증 실패");
+        }
+
+    }
+
+    @DeleteMapping("{study_id}")
+    public ResponseEntity<String> deleteStudy(@PathVariable Long studyId,
+            @RequestHeader(name = AUTH_HEADER) String token
+    ) {
+        if (token == null) {
+            // 'Authorization' 헤더가 누락된 경우 처리
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("토큰이 존재하지 않음");
+        }
+        Optional<User> user = userService.getUser(tokenProvider.getId(token));
+        if (user.isPresent()) {
+            studyService.deleteStudy(studyId);
+            return ResponseEntity.ok("스터디 삭제가 완료되었습니다.");
+        }else {
+            // 토큰이 유효하지 않은 경우 처리
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("인증 실패");
+        }
+
+    }
+    @GetMapping
+    public ResponseEntity<List<Study>> searchStudiesByKeyword(@RequestParam String keyword) {
+
+        List<Study> studiesByKeyword = studyService.searchStudiesByKeyword(keyword);
+        return new ResponseEntity<>(studiesByKeyword, HttpStatus.OK);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<Study> getStudyDetails(@PathVariable Long id) {
+        Study study = studyService.getStudyDetails(id);
+        if (study != null) {
+            return new ResponseEntity<>(study, HttpStatus.OK);
+        } else {
+            // 스터디를 찾을 수 없는 경우
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+  
     /**
      * 토큰과 스터디 아이디 검증
      * @param token 토큰
@@ -43,13 +116,13 @@ public class StudyController {
      */
     public User verifyUserNStudy(String token, Long studyId){
 
-        User user = userService.getUser(jwtService.getIdFromToken(token))
-            .orElseThrow(() -> new UserException(ErrorCode.INVALID_TOKEN));
-        Study study = studyService.getStudy(studyId);
-        if (user != null && study!= null)
-            return user;
-        else
-            return null;
+      User user = userService.getUser(jwtService.getIdFromToken(token))
+          .orElseThrow(() -> new UserException(ErrorCode.INVALID_TOKEN));
+      Study study = studyService.getStudy(studyId);
+      if (user != null && study!= null)
+        return user;
+      else
+        return null;
     }
 
     /**
@@ -61,10 +134,10 @@ public class StudyController {
      */
     public User verifyUserToken(String token, Long userId, Long studyId){
 
-        User userFromToken = verifyUserNStudy(token, studyId);
-        if( userFromToken != null )
-            return userService.findByIdAndToken(userFromToken.getId(), userId);
-        return null;
+      User userFromToken = verifyUserNStudy(token, studyId);
+      if( userFromToken != null )
+        return userService.findByIdAndToken(userFromToken.getId(), userId);
+      return null;
     }
 
     /**
@@ -80,12 +153,12 @@ public class StudyController {
         @RequestParam String title,
         @RequestHeader(name = AUTH_HEADER) String token) {
 
-        User user = verifyUserNStudy(token,studyId);
-        if (user != null)
-            return ResponseEntity.ok(
-                checkListService.createChecklist(user.getId(), studyId, title, AccessType.STUDY));
-        return ResponseEntity.ok("Adding study list Failed");
-        }
+      User user = verifyUserNStudy(token,studyId);
+      if (user != null)
+        return ResponseEntity.ok(
+            checkListService.createChecklist(user.getId(), studyId, title, AccessType.STUDY));
+      return ResponseEntity.ok("Adding study list Failed");
+    }
 
     /**
      * 개인 체크리스트 추가하기
@@ -102,11 +175,11 @@ public class StudyController {
         @RequestParam String title,
         @RequestHeader("Authorization") String token) {
 
-        if ( verifyUserToken(token, userId, studyId) != null)
-            return ResponseEntity.ok(
-                checkListService.createChecklist(userId, studyId, title, AccessType.USER));
-        return ResponseEntity.ok("Adding private list Failed");
-        }
+      if ( verifyUserToken(token, userId, studyId) != null)
+        return ResponseEntity.ok(
+            checkListService.createChecklist(userId, studyId, title, AccessType.USER));
+      return ResponseEntity.ok("Adding private list Failed");
+    }
 
     /**
      * 체크리스트 수정하기
@@ -122,10 +195,10 @@ public class StudyController {
         @RequestParam String title,
         @RequestHeader("Authorization") String token) {
 
-        User user = verifyUserNStudy(token,studyId);
-        if(user != null)
-            return ResponseEntity.ok(checkListService.editChecklist(user.getId(), checklistId, title));
-        return ResponseEntity.ok("Edit Failed");
+      User user = verifyUserNStudy(token,studyId);
+      if(user != null)
+        return ResponseEntity.ok(checkListService.editChecklist(user.getId(), checklistId, title));
+      return ResponseEntity.ok("Edit Failed");
     }
 
     /**
@@ -141,10 +214,10 @@ public class StudyController {
         @PathVariable("mission_id") Long checklistId,
         @RequestHeader("Authorization") String token) {
 
-        User user = verifyUserNStudy(token,studyId);
-        if(user != null)
-            return ResponseEntity.ok(checkListService.deleteChecklist(user.getId(), checklistId));
-        return ResponseEntity.ok("Delete Failed");
+      User user = verifyUserNStudy(token,studyId);
+      if(user != null)
+        return ResponseEntity.ok(checkListService.deleteChecklist(user.getId(), checklistId));
+      return ResponseEntity.ok("Delete Failed");
     }
 
     /**
@@ -164,11 +237,11 @@ public class StudyController {
         @RequestParam boolean status,
         @RequestHeader("Authorization") String token) {
 
-        /*  if (token.getId() == (@PathVariable) userId == checklist.getUserId ) -> 상태변경
-            else -> 하나라도 틀리면 변경 x */
-        if ( verifyUserToken(token, userId, studyId) != null)
-            return ResponseEntity.ok(checkListService.changeStatus(userId, checklistId,status));
-        return ResponseEntity.ok("Changing status Failed");
+          /*  if (token.getId() == (@PathVariable) userId == checklist.getUserId ) -> 상태변경
+              else -> 하나라도 틀리면 변경 x */
+      if ( verifyUserToken(token, userId, studyId) != null)
+        return ResponseEntity.ok(checkListService.changeStatus(userId, checklistId,status));
+      return ResponseEntity.ok("Changing status Failed");
     }
 
     /**
@@ -183,15 +256,15 @@ public class StudyController {
         @PathVariable("user_id") Long userId,
         @RequestHeader("Authorization") String token) {
 
-        User user = userService.getUser(jwtService.getIdFromToken(token))
-            .orElseThrow(() -> new UserException(ErrorCode.INVALID_TOKEN));
+      User user = userService.getUser(jwtService.getIdFromToken(token))
+          .orElseThrow(() -> new UserException(ErrorCode.INVALID_TOKEN));
 
-        if (!userId.equals(user.getId()))
-            throw new UserException(ErrorCode.TOKEN_UNMATCHED);
+      if (!userId.equals(user.getId()))
+        throw new UserException(ErrorCode.TOKEN_UNMATCHED);
 
-        // 참여하고 있는 스터디 리스트
-        List<Study> studyIds = studyService.findStudiesByUserId(userId);
-        return ResponseEntity.ok(checkListService.findAllMissions(studyIds));
+      // 참여하고 있는 스터디 리스트
+      List<Study> studyIds = studyService.findStudiesByUserId(userId);
+      return ResponseEntity.ok(checkListService.findAllMissions(studyIds));
 
     }
 
@@ -206,12 +279,12 @@ public class StudyController {
         @PathVariable("study_id") Long studyId,
         @RequestHeader("Authorization") String token) {
 
-        User user = verifyUserNStudy(token, studyId);
+      User user = verifyUserNStudy(token, studyId);
 
-        if (user != null)
-            // 스터디에서 사용자와 모임장이 생성한 체크리스트 조회
-            return ResponseEntity.ok(checkListService.findStudyMissionList(studyId, user.getId()));
-        else
-            return ResponseEntity.ok(Collections.emptyList());
+      if (user != null)
+        // 스터디에서 사용자와 모임장이 생성한 체크리스트 조회
+        return ResponseEntity.ok(checkListService.findStudyMissionList(studyId, user.getId()));
+      else
+        return ResponseEntity.ok(Collections.emptyList());
     }
 }
