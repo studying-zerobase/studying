@@ -1,5 +1,6 @@
 package com.zerobase.munbanggu.studyboard.model.entity;
 
+import com.zerobase.munbanggu.study.model.entity.Study;
 import com.zerobase.munbanggu.studyboard.type.Type;
 import com.zerobase.munbanggu.user.model.entity.User;
 import java.time.LocalDateTime;
@@ -59,7 +60,7 @@ public class StudyBoardPost {
     @OneToOne(mappedBy = "studyBoardPost", cascade = CascadeType.ALL, orphanRemoval = true)
     private Vote vote;
 
-//    @ManyToOne
-//    @JoinColumn(name = "study_id")
-//    private Study study;
+    @ManyToOne
+    @JoinColumn(name = "study_id")
+    private Study study;
 }

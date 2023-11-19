@@ -1,5 +1,8 @@
 package com.zerobase.munbanggu.studyboard.service;
 
+import com.zerobase.munbanggu.config.auth.TokenProvider;
+import com.zerobase.munbanggu.study.model.entity.Study;
+import com.zerobase.munbanggu.study.repository.StudyRepository;
 import com.zerobase.munbanggu.studyboard.exception.NotFoundPostException;
 import com.zerobase.munbanggu.studyboard.model.dto.PostRequest;
 import com.zerobase.munbanggu.studyboard.model.dto.PostResponse;
@@ -14,10 +17,8 @@ import com.zerobase.munbanggu.type.ErrorCode;
 import com.zerobase.munbanggu.user.exception.NotFoundUserException;
 import com.zerobase.munbanggu.user.model.entity.User;
 import com.zerobase.munbanggu.user.repository.UserRepository;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -31,10 +32,12 @@ public class StudyBoardService {
     private final StudyBoardPostRepository studyBoardPostRepository;
     private final VoteRepository voteRepository;
     private final UserRepository userRepository;
+    private final StudyRepository studyRepository;
+    private final TokenProvider tokenProvider;
 
     @Transactional
-    public PostResponse create(PostRequest request) {
-        StudyBoardPost post = buildPost(request);
+    public PostResponse create(PostRequest request, Long studyId, String token) {
+        StudyBoardPost post = buildPost(request, studyId, token);
         if (request.getType() == Type.VOTE) {
             Vote vote = buildVote(request, post);
             voteRepository.save(vote);
@@ -62,7 +65,7 @@ public class StudyBoardService {
         if (optionalPost.isPresent()) {
             studyBoardPostRepository.deleteById(postId);
         } else {
-            throw new NotFoundPostException(ErrorCode.POST_NOT_FOUND);
+            throw new NotFoundPostException(ErrorCode.NOT_FOUND_POST);
         }
     }
 
@@ -73,21 +76,24 @@ public class StudyBoardService {
 
     private StudyBoardPost findPost(Long postId) {
         return studyBoardPostRepository.findById(postId)
-                .orElseThrow(() -> new NotFoundPostException(ErrorCode.POST_NOT_FOUND));
+                .orElseThrow(() -> new NotFoundPostException(ErrorCode.NOT_FOUND_POST));
     }
 
-    private Optional<Vote> findVote(Long voteId) {
-        return voteRepository.findById(voteId);
+    private Study findStudy(Long studyId) {
+        return studyRepository.findById(studyId)
+                .orElseThrow(() -> new NotFoundPostException(ErrorCode.NOT_FOUND_STUDY));
     }
 
-    private StudyBoardPost buildPost(PostRequest request) {
-        User user = findUser(request.getUserId());
-
+    private StudyBoardPost buildPost(PostRequest request, Long studyId, String token) {
+        Long userId = tokenProvider.getId(token);
+        User user = findUser(userId);
+        Study study = findStudy(studyId);
         return StudyBoardPost.builder()
                 .type(request.getType())
                 .title(request.getTitle())
                 .content(request.getContent())
                 .user(user)
+                .study(study)
                 .build();
     }
 
@@ -118,42 +124,5 @@ public class StudyBoardService {
             post.setVote(newVote);
         }
         return post;
-    }
-
-    private void updateVoteOptions(Long voteId, List<VoteOptionRequest> newOptions) {
-        Vote vote = findVote(voteId).orElseThrow(() -> new NotFoundPostException(ErrorCode.VOTE_NOT_FOUND));
-        List<VoteOption> existingOptions = vote.getOptions();
-
-        List<String> existingOptionTexts = existingOptions.stream()
-                .map(VoteOption::getOptionText) //voteOption -> voteOption.getOptionText()
-                .collect(Collectors.toList());
-
-        List<String> newOptionTexts = newOptions.stream().map(VoteOptionRequest::getOptionText)
-                .collect(Collectors.toList());
-
-        handleAdditions(vote, newOptionTexts, existingOptionTexts);
-        handleRemovals(existingOptions, existingOptionTexts, newOptionTexts);
-
-        voteRepository.save(vote);
-    }
-
-    private void handleAdditions(Vote vote, List<String> newOptionTexts, List<String> existingOptionTexts) {
-        List<String> additions = new ArrayList<>(newOptionTexts);
-        additions.removeAll(existingOptionTexts);
-
-        for (String addition : additions) {
-            VoteOption voteOption = VoteOption.builder()
-                    .optionText(addition)
-                    .vote(vote)
-                    .build();
-            vote.addVoteOption(voteOption);
-        }
-    }
-
-    private void handleRemovals(List<VoteOption> existingOptions, List<String> existingOptionTexts,
-            List<String> newOptionTexts) {
-        List<String> removals = new ArrayList<>(existingOptionTexts);
-        removals.removeAll(newOptionTexts);
-        existingOptions.removeIf(option -> removals.contains(option.getOptionText()));
     }
 }
