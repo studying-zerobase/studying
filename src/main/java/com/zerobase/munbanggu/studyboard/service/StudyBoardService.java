@@ -71,7 +71,14 @@ public class StudyBoardService {
 
 
     @Transactional
-    public void delete(Long postId) {
+    public void delete(Long studyId, Long postId, String token) {
+        findStudy(studyId);
+        Long userId = tokenProvider.getId(token);
+        StudyBoardPost post = findPost(postId);
+        if (!userId.equals(post.getUser().getId())) {
+            log.error("user id {} 삭제 시도 / post id {} user id {}");
+            throw new NoPermissionException(ErrorCode.NO_PERMISSION_TO_MODIFY);
+        }
         Optional<StudyBoardPost> optionalPost = studyBoardPostRepository.findById(postId);
         if (optionalPost.isPresent()) {
             studyBoardPostRepository.deleteById(postId);

@@ -2,12 +2,9 @@ package com.zerobase.munbanggu.studyboard.controller;
 
 import static com.zerobase.munbanggu.type.ErrorCode.INVALID_REQUEST_BODY;
 import static com.zerobase.munbanggu.type.ErrorCode.INVALID_TOKEN;
-import static com.zerobase.munbanggu.type.ErrorCode.NOT_FOUND_POST;
 
-import com.zerobase.munbanggu.dto.ErrorResponse;
 import com.zerobase.munbanggu.dto.PageResponse;
 import com.zerobase.munbanggu.studyboard.exception.InvalidRequestBodyException;
-import com.zerobase.munbanggu.studyboard.exception.NotFoundPostException;
 import com.zerobase.munbanggu.studyboard.model.dto.PostRequest;
 import com.zerobase.munbanggu.studyboard.model.dto.PostResponse;
 import com.zerobase.munbanggu.studyboard.service.StudyBoardService;
@@ -18,7 +15,6 @@ import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.StringUtils;
 import org.springframework.validation.BindingResult;
@@ -94,16 +90,17 @@ public class StudyBoardController {
     @DeleteMapping("/{study_id}/post/{post_id}")
     public ResponseEntity<?> delete(@PathVariable("study_id") Long studyId, @PathVariable("post_id") Long postId,
             @RequestHeader(value = AUTHORIZATION_HEADER) String authHeader) {
-        try {
-            if (!StringUtils.hasText(authHeader)) {
-                throw new InvalidTokenException(INVALID_TOKEN);
-            }
-            studyBoardService.delete(postId);
-            return ResponseEntity.ok().body("삭제되었습니다.");
-        } catch (NotFoundPostException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(ErrorResponse.of(NOT_FOUND_POST, NOT_FOUND_POST.getDescription()));
+        if (!StringUtils.hasText(authHeader)) {
+            throw new InvalidTokenException(INVALID_TOKEN);
         }
+        if (!StringUtils.hasText(authHeader)) {
+            throw new InvalidTokenException(INVALID_TOKEN);
+        }
+        String token = authHeader.replace(AUTHORIZATION_PREFIX, "");
+
+        studyBoardService.delete(studyId, postId, token);
+        return ResponseEntity.ok().body("삭제되었습니다.");
+
     }
 
     @GetMapping("/{study_id}/post")
