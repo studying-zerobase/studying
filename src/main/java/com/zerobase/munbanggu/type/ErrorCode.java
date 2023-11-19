@@ -32,7 +32,8 @@ public enum ErrorCode {
     NOT_FOUND_POST("등록되지 않은 게시글 id 입니다."),
     NOT_FOUND_VOTE("등록되지 않은 투표입니다."),
     NOT_FOUND_OPTION("등록되지 않은 투표 항목입니다."),
-    ALREADY_VOTED("이미 투표하였습니다.");
+    ALREADY_VOTED("이미 투표하였습니다."),
+    NO_PERMISSION_TO_MODIFY("수정 권한이 없습니다.");
 
     private final String description;
 }

@@ -1,8 +1,10 @@
 package com.zerobase.munbanggu.studyboard.service;
 
 import com.zerobase.munbanggu.config.auth.TokenProvider;
+import com.zerobase.munbanggu.study.exception.NotFoundStudyException;
 import com.zerobase.munbanggu.study.model.entity.Study;
 import com.zerobase.munbanggu.study.repository.StudyRepository;
+import com.zerobase.munbanggu.studyboard.exception.NoPermissionException;
 import com.zerobase.munbanggu.studyboard.exception.NotFoundPostException;
 import com.zerobase.munbanggu.studyboard.model.dto.PostRequest;
 import com.zerobase.munbanggu.studyboard.model.dto.PostResponse;
@@ -20,11 +22,13 @@ import com.zerobase.munbanggu.user.repository.UserRepository;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class StudyBoardService {
@@ -45,8 +49,15 @@ public class StudyBoardService {
         return PostResponse.from(studyBoardPostRepository.save(post));
     }
 
-    public PostResponse update(PostRequest request, Long postId) {
+    public PostResponse update(PostRequest request, Long studyId, Long postId, String token) {
         StudyBoardPost post = findPost(postId);
+        findStudy(studyId);
+        Long userId = tokenProvider.getId(token);
+
+        if (!userId.equals(post.getUser().getId())) {
+            log.error("user id {} 수정 시도 / post id {} user id {}");
+            throw new NoPermissionException(ErrorCode.NO_PERMISSION_TO_MODIFY);
+        }
         post = updatePost(post, request);
         return PostResponse.from(studyBoardPostRepository.save(post));
     }
@@ -81,7 +92,7 @@ public class StudyBoardService {
 
     private Study findStudy(Long studyId) {
         return studyRepository.findById(studyId)
-                .orElseThrow(() -> new NotFoundPostException(ErrorCode.NOT_FOUND_STUDY));
+                .orElseThrow(() -> new NotFoundStudyException(ErrorCode.NOT_FOUND_STUDY));
     }
 
     private StudyBoardPost buildPost(PostRequest request, Long studyId, String token) {
