@@ -6,10 +6,12 @@ import static com.zerobase.munbanggu.type.ErrorCode.NOT_FOUND_POST;
 
 import com.zerobase.munbanggu.dto.ErrorResponse;
 import com.zerobase.munbanggu.dto.PageResponse;
+import com.zerobase.munbanggu.studyboard.exception.InvalidRequestBodyException;
 import com.zerobase.munbanggu.studyboard.exception.NotFoundPostException;
 import com.zerobase.munbanggu.studyboard.model.dto.PostRequest;
 import com.zerobase.munbanggu.studyboard.model.dto.PostResponse;
 import com.zerobase.munbanggu.studyboard.service.StudyBoardService;
+import com.zerobase.munbanggu.user.exception.InvalidTokenException;
 import java.util.HashMap;
 import java.util.Map;
 import javax.validation.Valid;
@@ -50,13 +52,13 @@ public class StudyBoardController {
 
         if (result.hasErrors()) {
             Map<String, String> errorMap = buildErrorMap(result);
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(ErrorResponse.of(INVALID_REQUEST_BODY, errorMap));
+            throw new InvalidRequestBodyException(INVALID_REQUEST_BODY, errorMap);
         }
+
         if (!StringUtils.hasText(authHeader)) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(ErrorResponse.of(INVALID_TOKEN, INVALID_TOKEN.getDescription()));
+            throw new InvalidTokenException(INVALID_TOKEN);
         }
+
         String token = authHeader.replace(AUTHORIZATION_PREFIX, "");
         return ResponseEntity.ok().body(studyBoardService.create(request, id, token));
     }
@@ -74,19 +76,28 @@ public class StudyBoardController {
 
     @PutMapping("/{study_id}/post/{post_id}")
     public ResponseEntity<?> update(@PathVariable("study_id") Long studyId, @PathVariable("post_id") Long postId,
-            @Valid @RequestBody PostRequest request, BindingResult result) {
+            @Valid @RequestBody PostRequest request, BindingResult result,
+            @RequestHeader(value = AUTHORIZATION_HEADER) String authHeader) {
 
         if (result.hasErrors()) {
             Map<String, String> errorMap = buildErrorMap(result);
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(ErrorResponse.of(INVALID_REQUEST_BODY, errorMap));
+            throw new InvalidRequestBodyException(INVALID_REQUEST_BODY, errorMap);
         }
-        return ResponseEntity.ok().body(studyBoardService.update(request, postId));
+
+        if (!StringUtils.hasText(authHeader)) {
+            throw new InvalidTokenException(INVALID_TOKEN);
+        }
+        String token = authHeader.replace(AUTHORIZATION_PREFIX, "");
+        return ResponseEntity.ok().body(studyBoardService.update(request, studyId, postId, token));
     }
 
     @DeleteMapping("/{study_id}/post/{post_id}")
-    public ResponseEntity<?> delete(@PathVariable("study_id") Long studyId, @PathVariable("post_id") Long postId) {
+    public ResponseEntity<?> delete(@PathVariable("study_id") Long studyId, @PathVariable("post_id") Long postId,
+            @RequestHeader(value = AUTHORIZATION_HEADER) String authHeader) {
         try {
+            if (!StringUtils.hasText(authHeader)) {
+                throw new InvalidTokenException(INVALID_TOKEN);
+            }
             studyBoardService.delete(postId);
             return ResponseEntity.ok().body("삭제되었습니다.");
         } catch (NotFoundPostException e) {
