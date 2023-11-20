@@ -35,7 +35,9 @@ public enum ErrorCode {
     STUDY_NOT_EXIST("스터디가 존재하지 않습니다"),
     CHECKLIST_NOT_EXIST("일치하는 체크리스트가  존재하지 않습니다"),
     TOKEN_UNMATCHED("아이디와 토큰정보가 일치하지 않습니다"),
-  ;
+    ALREADY_JOINED("이미 참여한 스터디 입니다."),
+
+    ;
 
     private final String description;
 }

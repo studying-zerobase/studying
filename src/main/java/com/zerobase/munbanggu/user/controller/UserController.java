@@ -1,14 +1,12 @@
 package com.zerobase.munbanggu.user.controller;
 
-
-
 import com.zerobase.munbanggu.aws.S3Uploader;
 import com.zerobase.munbanggu.config.auth.TokenProvider;
 import com.zerobase.munbanggu.user.dto.GetUserDto;
 import com.zerobase.munbanggu.user.dto.UserRegisterDto;
 import com.zerobase.munbanggu.user.model.entity.User;
+import com.zerobase.munbanggu.user.repository.UserRepository;
 import com.zerobase.munbanggu.user.service.UserService;
-import com.zerobase.munbanggu.util.JwtService;
 import java.io.IOException;
 import java.util.Map;
 import java.util.Optional;
@@ -26,8 +24,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 
-import org.springframework.transaction.annotation.Isolation;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -39,7 +35,6 @@ public class UserController {
     private final TokenProvider tokenProvider;
     private final UserService userService;
     private final S3Uploader s3Uploader;
-    private final TokenProvider tokenProvider;
 
     @PutMapping("/{user_id}")
     public ResponseEntity<?> updateUser( @RequestHeader(name = AUTH_HEADER) String token,
@@ -93,4 +88,13 @@ public class UserController {
             return new ResponseEntity<>("Failed to upload image", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+    // 스터디 신청
+    @PostMapping("/{user_id}/study/{study_id}")
+    public ResponseEntity<String> joinStudy(
+        @PathVariable("user_id") Long userId, @PathVariable("study_id") Long studyId,
+        @RequestParam(required = false) String password){
+        return ResponseEntity.ok(userService.joinStudy(userId,studyId,password));
+    }
+
 }

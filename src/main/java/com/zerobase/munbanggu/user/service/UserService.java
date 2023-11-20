@@ -1,10 +1,12 @@
 package com.zerobase.munbanggu.user.service;
 
 
+import static com.zerobase.munbanggu.type.ErrorCode.ALREADY_JOINED;
 import static com.zerobase.munbanggu.type.ErrorCode.INVALID_CODE;
 import static com.zerobase.munbanggu.type.ErrorCode.INVALID_EMAIL;
 import static com.zerobase.munbanggu.type.ErrorCode.INVALID_PHONE;
 import static com.zerobase.munbanggu.type.ErrorCode.EMAIL_NOT_EXIST;
+import static com.zerobase.munbanggu.type.ErrorCode.STUDY_NOT_EXIST;
 import static com.zerobase.munbanggu.type.ErrorCode.USER_NOT_EXIST;
 import static com.zerobase.munbanggu.type.ErrorCode.USER_WITHDRAWN;
 import static com.zerobase.munbanggu.type.ErrorCode.WRONG_PASSWORD;
@@ -12,6 +14,9 @@ import static com.zerobase.munbanggu.user.type.Role.INACTIVE;
 
 import com.zerobase.munbanggu.config.auth.TokenProvider;
 import com.zerobase.munbanggu.dto.TokenResponse;
+import com.zerobase.munbanggu.study.exception.StudyException;
+import com.zerobase.munbanggu.study.model.entity.Study;
+import com.zerobase.munbanggu.study.repository.StudyRepository;
 import com.zerobase.munbanggu.user.dto.FindUserInfoDto;
 import com.zerobase.munbanggu.user.dto.GetUserDto;
 import com.zerobase.munbanggu.user.dto.ResetPwDto;
@@ -21,7 +26,9 @@ import com.zerobase.munbanggu.user.dto.UserRegisterDto;
 import com.zerobase.munbanggu.user.exception.InvalidNicknameException;
 import com.zerobase.munbanggu.user.exception.NicknameAlreadyExistsException;
 import com.zerobase.munbanggu.user.exception.UserException;
+import com.zerobase.munbanggu.user.model.entity.StudyUser;
 import com.zerobase.munbanggu.user.model.entity.User;
+import com.zerobase.munbanggu.user.repository.StudyUserRepository;
 import com.zerobase.munbanggu.user.repository.UserRepository;
 import com.zerobase.munbanggu.user.type.AuthenticationStatus;
 import com.zerobase.munbanggu.util.RedisUtil;
@@ -32,7 +39,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import javax.persistence.EntityNotFoundException;
 
 @Service
@@ -43,6 +49,10 @@ public class UserService {
 
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private StudyRepository studyRepository;
+    @Autowired
+    private StudyUserRepository studyUserRepository;
     private final TokenProvider tokenProvider;
     private final BCryptPasswordEncoder passwordEncoder;
     private final RedisUtil redisUtil;
@@ -239,5 +249,34 @@ public class UserService {
         }
         else
             return AuthenticationStatus.FAIL;
+    }
+
+    public String joinStudy(Long userId, Long studyId,String password){
+        User user = userRepository.findById(userId)
+            .orElseThrow(() -> new UserException(USER_NOT_EXIST));
+
+        Study study = studyRepository.findById(studyId)
+            .orElseThrow(() -> new StudyException(STUDY_NOT_EXIST));
+
+        if (user != null && study != null){
+            //private 인데 비밀번호 일치x
+            if (!passwordEncoder.matches(password, study.getPassword()) &&
+            !study.isPublic_or_not()) {
+                throw new UserException(WRONG_PASSWORD);
+            }
+
+            //이미 가입한 유저
+            for (StudyUser studyList : studyUserRepository.findByUser(user)) {
+                if (studyList.getStudy().equals(study)) {
+                    throw new StudyException(ALREADY_JOINED);
+                }
+            }
+
+            // 모임 참여
+            StudyUser studyUser = new StudyUser(user,study);
+            studyUserRepository.save(studyUser);
+            return "스터디 가입 성공";
+        }
+        return "스터디 가입 실패";
     }
 }
