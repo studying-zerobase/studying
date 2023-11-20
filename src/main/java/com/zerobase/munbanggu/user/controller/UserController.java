@@ -97,4 +97,11 @@ public class UserController {
         return ResponseEntity.ok(userService.joinStudy(userId,studyId,password));
     }
 
+    // 스터디 탈퇴
+    @DeleteMapping("/{user_id}/study/{study_id}")
+    public ResponseEntity<String> withdrawStudy(
+        @PathVariable("user_id") Long userId, @PathVariable("study_id") Long studyId){
+        return ResponseEntity.ok(userService.withdrawStudy(userId,studyId));
+    }
+
 }

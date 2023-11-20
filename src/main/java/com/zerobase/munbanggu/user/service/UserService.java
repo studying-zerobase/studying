@@ -6,6 +6,8 @@ import static com.zerobase.munbanggu.type.ErrorCode.INVALID_CODE;
 import static com.zerobase.munbanggu.type.ErrorCode.INVALID_EMAIL;
 import static com.zerobase.munbanggu.type.ErrorCode.INVALID_PHONE;
 import static com.zerobase.munbanggu.type.ErrorCode.EMAIL_NOT_EXIST;
+import static com.zerobase.munbanggu.type.ErrorCode.INVALID_USER_OR_STUDY;
+import static com.zerobase.munbanggu.type.ErrorCode.NOT_PARTICIPATING;
 import static com.zerobase.munbanggu.type.ErrorCode.STUDY_NOT_EXIST;
 import static com.zerobase.munbanggu.type.ErrorCode.USER_NOT_EXIST;
 import static com.zerobase.munbanggu.type.ErrorCode.USER_WITHDRAWN;
@@ -275,8 +277,34 @@ public class UserService {
             // 모임 참여
             StudyUser studyUser = new StudyUser(user,study);
             studyUserRepository.save(studyUser);
-            return "스터디 가입 성공";
+            return "Joined the study successfully";
         }
-        return "스터디 가입 실패";
+        throw new StudyException(INVALID_USER_OR_STUDY);
+    }
+
+    private String deleteStudyUser(StudyUser studyUser) {
+        studyUserRepository.delete(studyUser);
+        return studyUser.getUser().getEmail()+
+            ", " + studyUser.getStudy().getTitle() +" has been deleted";
+    }
+
+    public String withdrawStudy(Long userId, Long studyId) {
+        User user = userRepository.findById(userId)
+            .orElseThrow(() -> new UserException(USER_NOT_EXIST));
+
+        Study study = studyRepository.findById(studyId)
+            .orElseThrow(() -> new StudyException(STUDY_NOT_EXIST));
+
+        if (user != null && study != null) {
+
+            // 회원이 스터디에 참여중이면 삭제
+            for (StudyUser studyList : studyUserRepository.findByUser(user)) {
+                if (studyList.getStudy().equals(study)) {
+                    return deleteStudyUser(studyList);
+                }
+            }
+            throw new StudyException(NOT_PARTICIPATING);
+        }
+        throw new StudyException(INVALID_USER_OR_STUDY);
     }
 }
