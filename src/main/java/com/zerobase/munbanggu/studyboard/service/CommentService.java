@@ -91,22 +91,25 @@ public class CommentService {
         Comment parent = comment.getParent();
 
         if (parent == null) {
-            if (!comment.getChildren().isEmpty()) {
-                List<Comment> nonDeletedChildren = comment.getChildren().stream()
-                        .filter(c -> !c.isDeleted())
-                        .toList();
+            List<Comment> nonDeletedChildren = comment.getChildren().stream()
+                    .filter(c -> !c.isDeleted())
+                    .toList();
 
-                if (!nonDeletedChildren.isEmpty()) {
-                    comment.setDeleted(true);
-                    return null;
-                }
-            }
-        } else if (parent.isDeleted() && parent.getChildren().size() > 1) {
-            List<Comment> nonDeletedChildren = parent.getChildren().stream().filter(c -> !c.isDeleted()).toList();
             if (!nonDeletedChildren.isEmpty()) {
                 comment.setDeleted(true);
                 return null;
             }
+        } else if (parent.isDeleted() && parent.getChildren().size() > 1) {
+            // 삭제 안된 자식 댓글 리스트
+            List<Comment> nonDeletedChildren = parent.getChildren().stream().filter(c -> !c.isDeleted()).toList();
+            // 삭제 안된 자식 댓글들이 있다면!
+            if (nonDeletedChildren.size() > 1) {
+                comment.setDeleted(true);
+                return null;
+            }
+            commentRepository.delete(parent);
+        } else if (parent.isDeleted() && parent.getChildren().size() == 1) {
+            commentRepository.delete(parent);
         }
         return comment;
     }

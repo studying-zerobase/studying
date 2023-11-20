@@ -49,5 +49,7 @@ public class CommentController {
         String token = authHeader.replace(AUTHORIZATION_PREFIX, "");
         commentService.delete(postId, commentId, token);
         return ResponseEntity.ok().body("댓글이 작성되었습니다.");
+        return ResponseEntity.ok().body("댓글이 삭제되었습니다.");
+    }
     }
 }
