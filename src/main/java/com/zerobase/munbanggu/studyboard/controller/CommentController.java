@@ -8,6 +8,7 @@ import com.zerobase.munbanggu.user.exception.InvalidTokenException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.StringUtils;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -35,6 +36,18 @@ public class CommentController {
 
         String token = authHeader.replace(AUTHORIZATION_PREFIX, "");
         commentService.create(postId, commentRequest, token);
+        return ResponseEntity.ok().body("댓글이 작성되었습니다.");
+    }
+
+    @DeleteMapping("/{post_id}/{comment_id}")
+    public ResponseEntity<?> delete(@PathVariable("post_id") Long postId, @PathVariable("comment_id") Long commentId,
+            @RequestHeader(value = AUTHORIZATION_HEADER) String authHeader) {
+        if (!StringUtils.hasText(authHeader)) {
+            throw new InvalidTokenException(INVALID_TOKEN);
+        }
+
+        String token = authHeader.replace(AUTHORIZATION_PREFIX, "");
+        commentService.delete(postId, commentId, token);
         return ResponseEntity.ok().body("댓글이 작성되었습니다.");
     }
 }

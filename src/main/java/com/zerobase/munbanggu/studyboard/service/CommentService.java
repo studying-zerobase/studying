@@ -1,6 +1,7 @@
 package com.zerobase.munbanggu.studyboard.service;
 
 import com.zerobase.munbanggu.config.auth.TokenProvider;
+import com.zerobase.munbanggu.studyboard.exception.NoPermissionException;
 import com.zerobase.munbanggu.studyboard.exception.NotFoundPostException;
 import com.zerobase.munbanggu.studyboard.model.dto.CommentRequest;
 import com.zerobase.munbanggu.studyboard.model.entity.Comment;
@@ -11,6 +12,7 @@ import com.zerobase.munbanggu.type.ErrorCode;
 import com.zerobase.munbanggu.user.exception.NotFoundUserException;
 import com.zerobase.munbanggu.user.model.entity.User;
 import com.zerobase.munbanggu.user.repository.UserRepository;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -45,6 +47,31 @@ public class CommentService {
         commentRepository.save(comment);
     }
 
+    @Transactional
+    public void delete(Long postId, Long commentId, String token) {
+        StudyBoardPost post = findPost(postId);
+        Comment comment = findComment(commentId);
+        Comment deletableComment = getDeletableComment(comment);
+        Long userId = tokenProvider.getId(token);
+
+        if (!comment.getStudyBoardPost().getId().equals(post.getId())) {
+            throw new NotFoundPostException(ErrorCode.NOT_FOUND_POST);
+        }
+
+        if (!comment.getUser().getId().equals(userId)) {
+            throw new NoPermissionException(ErrorCode.NO_PERMISSION_TO_MODIFY);
+        }
+
+        if (deletableComment != null) {
+            if (!deletableComment.getChildren().isEmpty()) {
+                deletableComment.setDeleted(true);
+                commentRepository.save(deletableComment);
+            } else {
+                commentRepository.delete(deletableComment);
+            }
+        }
+    }
+
     private User findUser(Long userId) {
         return userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundUserException(ErrorCode.NOT_FOUND_USER_ID));
@@ -55,4 +82,32 @@ public class CommentService {
                 .orElseThrow(() -> new NotFoundPostException(ErrorCode.NOT_FOUND_POST));
     }
 
+    private Comment findComment(Long commentId) {
+        return commentRepository.findById(commentId)
+                .orElseThrow(() -> new NotFoundPostException(ErrorCode.NOT_FOUND_COMMENT));
+    }
+
+    private Comment getDeletableComment(Comment comment) {
+        Comment parent = comment.getParent();
+
+        if (parent == null) {
+            if (!comment.getChildren().isEmpty()) {
+                List<Comment> nonDeletedChildren = comment.getChildren().stream()
+                        .filter(c -> !c.isDeleted())
+                        .toList();
+
+                if (!nonDeletedChildren.isEmpty()) {
+                    comment.setDeleted(true);
+                    return null;
+                }
+            }
+        } else if (parent.isDeleted() && parent.getChildren().size() > 1) {
+            List<Comment> nonDeletedChildren = parent.getChildren().stream().filter(c -> !c.isDeleted()).toList();
+            if (!nonDeletedChildren.isEmpty()) {
+                comment.setDeleted(true);
+                return null;
+            }
+        }
+        return comment;
+    }
 }

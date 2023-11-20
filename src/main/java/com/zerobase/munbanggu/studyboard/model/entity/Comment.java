@@ -39,6 +39,8 @@ public class Comment {
     @Column(nullable = false, length = 1000)
     private String content;
 
+    private boolean isDeleted;
+
     @CreatedDate
     private LocalDateTime createdDate;
 
