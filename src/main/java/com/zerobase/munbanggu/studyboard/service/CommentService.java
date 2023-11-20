@@ -4,6 +4,7 @@ import com.zerobase.munbanggu.config.auth.TokenProvider;
 import com.zerobase.munbanggu.studyboard.exception.NoPermissionException;
 import com.zerobase.munbanggu.studyboard.exception.NotFoundPostException;
 import com.zerobase.munbanggu.studyboard.model.dto.CommentRequest;
+import com.zerobase.munbanggu.studyboard.model.dto.CommentResponse;
 import com.zerobase.munbanggu.studyboard.model.entity.Comment;
 import com.zerobase.munbanggu.studyboard.model.entity.StudyBoardPost;
 import com.zerobase.munbanggu.studyboard.repository.CommentRepository;
@@ -14,6 +15,8 @@ import com.zerobase.munbanggu.user.model.entity.User;
 import com.zerobase.munbanggu.user.repository.UserRepository;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -65,11 +68,22 @@ public class CommentService {
         if (deletableComment != null) {
             if (!deletableComment.getChildren().isEmpty()) {
                 deletableComment.setDeleted(true);
-                commentRepository.save(deletableComment);
             } else {
                 commentRepository.delete(deletableComment);
             }
         }
+    }
+
+    public Page<CommentResponse> retrieveAllComments(Long postId, String token, Pageable pageable) {
+        // TODO: 스터디 가입되었는지 조회
+        Long userId = tokenProvider.getId(token);
+        StudyBoardPost post = findPost(postId);
+        Page<CommentResponse> commentResponses = null;
+        if (post != null) {
+            Page<Comment> commentPage = commentRepository.findByStudyBoardPostId(postId, pageable);
+            commentResponses = commentPage.map(CommentResponse::from);
+        }
+        return commentResponses;
     }
 
     private User findUser(Long userId) {
