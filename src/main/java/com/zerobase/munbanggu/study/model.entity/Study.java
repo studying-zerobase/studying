@@ -1,8 +1,7 @@
 package com.zerobase.munbanggu.study.model.entity;
 
-
-import com.zerobase.munbanggu.user.type.EnrollmentStatus;
-import com.zerobase.munbanggu.user.type.RefundCycle;
+import com.zerobase.munbanggu.study.type.EnrollmentStatus;
+import com.zerobase.munbanggu.study.type.RefundCycle;
 import java.time.LocalDateTime;
 import javax.persistence.Entity;
 import javax.persistence.EntityListeners;
@@ -16,9 +15,9 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.jetbrains.annotations.Nullable;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+import reactor.util.annotation.Nullable;
 
 @Entity
 @EntityListeners(AuditingEntityListener.class)
@@ -28,11 +27,12 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Study {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String user_id;
+    private Long user_id;
 
     private String title;
 
@@ -58,6 +58,7 @@ public class Study {
     private boolean start_attend_or_not;
 
     private long checklist_cycle;
+
     private long fee;
 
     @Enumerated(EnumType.STRING)
@@ -72,7 +73,5 @@ public class Study {
 
     @Nullable
     private LocalDateTime delete_date;
-
-
 
 }
