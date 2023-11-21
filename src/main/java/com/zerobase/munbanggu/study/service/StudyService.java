@@ -1,10 +1,9 @@
 package com.zerobase.munbanggu.study.service;
 
-
 import static com.zerobase.munbanggu.type.ErrorCode.STUDY_NOT_EXIST;
 import static com.zerobase.munbanggu.type.ErrorCode.USER_NOT_EXIST;
-
 import com.zerobase.munbanggu.study.dto.StudyDto;
+import com.zerobase.munbanggu.study.exception.StudyException;
 import com.zerobase.munbanggu.study.model.entity.Study;
 import com.zerobase.munbanggu.study.model.entity.StudyMember;
 import com.zerobase.munbanggu.study.repository.StudyMemberRepository;
@@ -17,18 +16,27 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 @Service
-@RequiredArgsConstructor
+@RequiredArgsConstructor  
 public class StudyService {
     private final StudyRepository studyRepository;
+
 
     private final UserRepository userRepository;
     private final StudyMemberRepository studyMemberRepository;
 
-    public Study openStudy(StudyDto studyDto) {
 
+    
+    public Study getStudy(Long id){
+        return studyRepository.findById(id)
+            .orElseThrow(() -> new StudyException(STUDY_NOT_EXIST));
+    }
+  
+
+    public Study openStudy(StudyDto studyDto) {
         Study newStudy = convertToEntity(studyDto);
         return studyRepository.save(newStudy);
     }
+  
     private Study convertToEntity(StudyDto studyDto) {
         // StudyDto를 Study 엔티티로 변환
 
@@ -94,6 +102,7 @@ public class StudyService {
         return studyRepository.findById(id).orElse(null);
     }
 
+
     public void addMemberToStudy(Long studyId, Long userId) {
         Study study = studyRepository.findById(studyId)
                 .orElseThrow(() -> new UserException(STUDY_NOT_EXIST));
@@ -108,5 +117,15 @@ public class StudyService {
 
         // 스터디원 추가
         studyMemberRepository.save(studyMember);
+    }
+  
+    /**
+     * 사용자가 참여하고있는 스터디의 ID 목록을 조회
+     * @param userId 사용자ID
+     * @return 참여하고 있는 스터디ID 목록
+     */
+    public List<Study> findStudiesByUserId(Long userId) {
+      return studyRepository.findStudyIdByUserId(userId);
+
     }
 }
