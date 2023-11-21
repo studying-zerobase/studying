@@ -112,7 +112,6 @@ public class ChecklistService {
             // 스터디 아이디로 그룹화
             Collectors.groupingBy(
                 checklist -> studyRepository.findById(checklist.getStudyUser().getId())
-//                checklist -> studyRepository.findById(checklist.getStudy().getId())
                     .orElseThrow(() -> new StudyException(ErrorCode.STUDY_NOT_EXIST))
                     .getTitle(), Collectors.toList()
             )

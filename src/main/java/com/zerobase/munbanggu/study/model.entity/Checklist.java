@@ -38,6 +38,7 @@ public class Checklist {
     private StudyUser studyUser;
 
     private Long study_id;
+
     private Long user_id;
 
     @Builder.Default
