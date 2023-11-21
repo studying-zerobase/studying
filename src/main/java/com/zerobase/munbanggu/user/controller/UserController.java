@@ -8,22 +8,12 @@ import com.zerobase.munbanggu.user.model.entity.User;
 import com.zerobase.munbanggu.user.repository.UserRepository;
 import com.zerobase.munbanggu.user.service.UserService;
 import java.io.IOException;
-import java.util.Map;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
-
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -56,8 +46,8 @@ public class UserController {
     }
 
     @GetMapping("/{user_id}")
-    public ResponseEntity<GetUserDto> getUserInfo(@RequestBody Map<String,String> req){
-        return ResponseEntity.ok(userService.getInfo(req.get("email")));
+    public ResponseEntity<GetUserDto> getUserInfo(@PathVariable("user_id")Long userId){
+        return ResponseEntity.ok(userService.getInfo(userId));
     }
 
     @Transactional(isolation=Isolation.SERIALIZABLE)
