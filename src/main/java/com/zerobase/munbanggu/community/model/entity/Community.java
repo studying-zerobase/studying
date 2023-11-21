@@ -1,6 +1,8 @@
 package com.zerobase.munbanggu.community.model.entity;
 
+import com.zerobase.munbanggu.community.Converter.CommunityCategoryConverter;
 import com.zerobase.munbanggu.user.model.entity.User;
+import com.zerobase.munbanggu.user.type.CommunityCategoty;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -18,7 +20,7 @@ import java.util.Set;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name="community")
+@Table(name = "community")
 public class Community {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -29,8 +31,11 @@ public class Community {
 
     private String title;
     private String content;
-    private String photo; // URL to the photo
-    private Long view;
+    private String photoImgurl;
+    @Convert(converter = CommunityCategoryConverter.class)
+    private CommunityCategoty communityCategoty;
+    @Builder.Default
+    private Long view = 0L;
 
     @CreatedDate
     private LocalDateTime created_date;
@@ -38,21 +43,8 @@ public class Community {
     @LastModifiedDate
     private LocalDateTime modified_date;
 
-    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JoinTable(
-            name = "community_hashtags",
-            joinColumns = @JoinColumn(name = "community_id"),
-            inverseJoinColumns = @JoinColumn(name = "hashtag_id")
-    )
-    private Set<Hashtag> hashtags = new HashSet<>();
-
-    public void addHashtag(Hashtag hashtag) {
-        this.hashtags.add(hashtag);
-        hashtag.getCommunity().add(this);
-    }
-
-    public void removeHashtag(Hashtag hashtag) {
-        this.hashtags.remove(hashtag);
-        hashtag.getCommunity().remove(this);
-    }
+    @ElementCollection
+    @CollectionTable(name = "community_hashtags", joinColumns = @JoinColumn(name = "community_id"))
+    @Column(name = "hashtag")
+    private Set<String> hashtags = new HashSet<>();
 }

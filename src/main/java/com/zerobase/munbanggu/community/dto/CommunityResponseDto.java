@@ -1,13 +1,12 @@
 package com.zerobase.munbanggu.community.dto;
 
-import com.zerobase.munbanggu.user.model.entity.User;
 import com.zerobase.munbanggu.user.type.CommunityCategoty;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
-public class CommunityGetDto {
+public class CommunityResponseDto {
     public Set<String> getHashtags() {
         return hashtags;
     }

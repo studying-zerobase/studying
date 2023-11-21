@@ -6,7 +6,7 @@ import javax.persistence.AttributeConverter;
 import javax.persistence.Converter;
 
 @Converter(autoApply = true)
-public class CommunityCategotyConverter implements AttributeConverter<CommunityCategoty, String> {
+public class CommunityCategoryConverter implements AttributeConverter<CommunityCategoty, String> {
 
     @Override
     public String convertToDatabaseColumn(CommunityCategoty category) {
