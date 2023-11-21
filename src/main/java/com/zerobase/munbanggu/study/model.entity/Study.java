@@ -65,6 +65,9 @@ public class Study {
     @Nullable
     private RefundCycle refundCycle;
 
+    @CreatedDate
+    private LocalDateTime latest_refund_date;
+
     @Enumerated(EnumType.STRING)
     private EnrollmentStatus status;
 

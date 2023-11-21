@@ -145,7 +145,7 @@ public class ChecklistService {
 
       if (studyUser != null) {
         return calculateParticipationRate(studyUser.getChecklists(),
-            studyUser.getLatestCertificationDate().plusMonths(cycle));
+            study.getLatest_refund_date().plusMonths(cycle));
       }
     }
     throw new StudyException(ErrorCode.INVALID_USER_OR_STUDY);
@@ -167,14 +167,14 @@ public class ChecklistService {
 
       for (StudyUser studyUser : participants) {
         total += calculateParticipationRate(studyUser.getChecklists(),
-            studyUser.getLatestCertificationDate().plusMonths(cycle));
+            study.getLatest_refund_date().plusMonths(cycle));
       }
       return total / participantNum;
     }
     throw new StudyException(ErrorCode.STUDY_NOT_EXIST);
   }
 
-  public double calculateParticipationRate(List<Checklist> checklists,LocalDateTime endDate) {
+  public double calculateParticipationRate(List<Checklist> checklists, LocalDateTime endDate) {
     int checklistNum = checklists.size();
 
     if (checklistNum == 0)
