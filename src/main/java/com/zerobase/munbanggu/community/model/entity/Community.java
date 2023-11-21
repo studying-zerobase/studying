@@ -32,6 +32,7 @@ public class Community {
     private String title;
     private String content;
     private String photoImgurl;
+    @Enumerated(EnumType.STRING)
     @Convert(converter = CommunityCategoryConverter.class)
     private CommunityCategoty communityCategoty;
     @Builder.Default
