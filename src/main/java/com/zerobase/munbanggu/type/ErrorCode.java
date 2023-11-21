@@ -37,7 +37,9 @@ public enum ErrorCode {
     TOKEN_UNMATCHED("아이디와 토큰정보가 일치하지 않습니다"),
     ALREADY_JOINED("이미 참여한 스터디 입니다."),
     NOT_PARTICIPATING("해당 스터디에 참여하고 있지 않습니다"),
-    INVALID_USER_OR_STUDY("사용자 혹은 스터디가 존재하지 않습니다.")
+    INVALID_USER_OR_STUDY("사용자 혹은 스터디가 존재하지 않습니다."),
+    INSUFFICIENT_USER_CAPACITY("스터디 참여자 수가 최소 정원 이하입니다."),
+
     ;
 
     private final String description;

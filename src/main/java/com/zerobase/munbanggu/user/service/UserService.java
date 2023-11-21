@@ -34,6 +34,7 @@ import com.zerobase.munbanggu.user.repository.StudyUserRepository;
 import com.zerobase.munbanggu.user.repository.UserRepository;
 import com.zerobase.munbanggu.user.type.AuthenticationStatus;
 import com.zerobase.munbanggu.util.RedisUtil;
+import java.time.LocalDateTime;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -275,7 +276,7 @@ public class UserService {
             }
 
             // 모임 참여
-            StudyUser studyUser = new StudyUser(user,study);
+            StudyUser studyUser = new StudyUser(user,study, LocalDateTime.now());
             studyUserRepository.save(studyUser);
             return "Joined the study successfully";
         }

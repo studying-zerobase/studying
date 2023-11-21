@@ -10,6 +10,7 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface StudyUserRepository extends JpaRepository<StudyUser,Long> {
+  StudyUser findByUserAndStudy(User user, Study study);
   List<StudyUser> findByUser(User user);  //user 참여하고 있는 스터디 반환
   List<StudyUser> findByStudy(Study study);  // 스터디에 참여하고 있는 유저 반환
 
