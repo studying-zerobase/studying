@@ -45,6 +45,8 @@ public enum ErrorCode {
     INVALID_USER_OR_STUDY("사용자 혹은 스터디가 존재하지 않습니다."),
     INSUFFICIENT_USER_CAPACITY("스터디 참여자 수가 최소 정원 이하입니다."),
 
+    //point
+    POINT_HISTORY_NOT_EXIST("기록이 없습니다 ")
     ;
 
 

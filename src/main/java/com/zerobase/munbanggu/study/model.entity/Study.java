@@ -1,5 +1,6 @@
 package com.zerobase.munbanggu.study.model.entity;
 
+import com.zerobase.munbanggu.study.type.ChecklistCycle;
 import com.zerobase.munbanggu.study.type.EnrollmentStatus;
 import com.zerobase.munbanggu.study.type.RefundCycle;
 import java.time.LocalDateTime;
@@ -57,7 +58,9 @@ public class Study {
     @Nullable
     private boolean start_attend_or_not;
 
-    private long checklist_cycle;
+    @Enumerated(EnumType.STRING)
+    @Nullable
+    private ChecklistCycle checklist_cycle;
 
     private long fee;
 
