@@ -8,7 +8,7 @@ import com.zerobase.munbanggu.study.model.entity.Checklist;
 import com.zerobase.munbanggu.study.model.entity.Study;
 import com.zerobase.munbanggu.study.repository.StudyRepository;
 import com.zerobase.munbanggu.study.type.RefundCycle;
-import com.zerobase.munbanggu.type.ErrorCode;
+import com.zerobase.munbanggu.common.type.ErrorCode;
 import com.zerobase.munbanggu.user.exception.UserException;
 import com.zerobase.munbanggu.user.model.entity.StudyUser;
 import com.zerobase.munbanggu.user.model.entity.User;
