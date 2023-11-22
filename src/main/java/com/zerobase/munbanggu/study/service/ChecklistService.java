@@ -7,7 +7,7 @@ import com.zerobase.munbanggu.study.repository.ChecklistRepository;
 import com.zerobase.munbanggu.study.repository.StudyRepository;
 import com.zerobase.munbanggu.study.type.AccessType;
 import com.zerobase.munbanggu.study.type.ChecklistCycle;
-import com.zerobase.munbanggu.type.ErrorCode;
+import com.zerobase.munbanggu.common.type.ErrorCode;
 import com.zerobase.munbanggu.user.exception.UserException;
 import com.zerobase.munbanggu.user.model.entity.StudyUser;
 import com.zerobase.munbanggu.user.model.entity.User;
