@@ -1,9 +1,10 @@
 package com.zerobase.munbanggu.user.UserImageUploadTest;
 
 import com.zerobase.munbanggu.aws.S3Uploader;
+import com.zerobase.munbanggu.auth.TokenProvider;
 import com.zerobase.munbanggu.user.controller.UserController;
 import com.zerobase.munbanggu.user.service.UserService;
-import com.zerobase.munbanggu.util.JwtService;
+import com.zerobase.munbanggu.common.util.JwtService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -35,6 +36,9 @@ public class UserImageUploadControllerTest {
     @Mock
     private JwtService jwtService;
 
+    @Mock
+    private TokenProvider tokenProvider;
+
     @InjectMocks
     private UserController userController;
 
@@ -43,14 +47,16 @@ public class UserImageUploadControllerTest {
         userService = Mockito.mock(UserService.class);
         s3Uploader = Mockito.mock(S3Uploader.class);
         jwtService = Mockito.mock(JwtService.class);
-        userController = new UserController(jwtService, userService, s3Uploader);
+        tokenProvider = Mockito.mock(TokenProvider.class);
+        userController = new UserController(tokenProvider, userService, s3Uploader);
         mockMvc = MockMvcBuilders.standaloneSetup(userController).build();
     }
 
 
     @Test
     public void testUploadOrUpdateProfileImage_Success() throws Exception {
-        MockMultipartFile file = new MockMultipartFile("imageFile", "filename.jpg", "image/jpeg", "some-image".getBytes());
+        MockMultipartFile file = new MockMultipartFile("imageFile", "filename.jpg", "image/jpeg",
+                "some-image".getBytes());
         Long userId = 1L;
         String newImageUrl = "http://newimage.url";
 
@@ -64,7 +70,8 @@ public class UserImageUploadControllerTest {
 
     @Test
     public void testUploadOrUpdateProfileImage_Failure() throws Exception {
-        MockMultipartFile file = new MockMultipartFile("imageFile", "filename.jpg", "image/jpeg", "some-image".getBytes());
+        MockMultipartFile file = new MockMultipartFile("imageFile", "filename.jpg", "image/jpeg",
+                "some-image".getBytes());
         Long userId = 1L;
 
         when(s3Uploader.uploadFile(file)).thenThrow(new IOException());
