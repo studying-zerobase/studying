@@ -34,7 +34,7 @@ public class StudyCommentController {
 
 
     @PostMapping("/{post_id}")
-    public ResponseEntity<?> create(@PathVariable("post_id") Long postId, @RequestBody CommentRequest commentRequest,
+    public ResponseEntity<String> create(@PathVariable("post_id") Long postId, @RequestBody CommentRequest commentRequest,
             @RequestHeader(value = AUTHORIZATION_HEADER) String authHeader) {
         String token = tokenProvider.getRawToken(authHeader);
         studyCommentService.create(postId, commentRequest, token);
@@ -42,7 +42,7 @@ public class StudyCommentController {
     }
 
     @DeleteMapping("/{post_id}/{comment_id}")
-    public ResponseEntity<?> delete(@PathVariable("post_id") Long postId, @PathVariable("comment_id") Long commentId,
+    public ResponseEntity<String> delete(@PathVariable("post_id") Long postId, @PathVariable("comment_id") Long commentId,
             @RequestHeader(value = AUTHORIZATION_HEADER) String authHeader) {
         if (!StringUtils.hasText(authHeader)) {
             throw new InvalidTokenException(INVALID_TOKEN);

@@ -39,7 +39,7 @@ public class StudyBoardController {
     private static final String AUTHORIZATION_HEADER = "Authorization";
 
     @PostMapping("/{study_id}/post")
-    public ResponseEntity<?> create(@PathVariable("study_id") Long id,
+    public ResponseEntity<PostResponse> create(@PathVariable("study_id") Long id,
             @Valid @RequestBody PostRequest request, BindingResult result,
             @RequestHeader(value = AUTHORIZATION_HEADER) String authHeader) {
         if (result.hasErrors()) {
@@ -63,7 +63,7 @@ public class StudyBoardController {
     }
 
     @PutMapping("/{study_id}/post/{post_id}")
-    public ResponseEntity<?> update(@PathVariable("study_id") Long studyId, @PathVariable("post_id") Long postId,
+    public ResponseEntity<PostResponse> update(@PathVariable("study_id") Long studyId, @PathVariable("post_id") Long postId,
             @Valid @RequestBody PostRequest request, BindingResult result,
             @RequestHeader(value = AUTHORIZATION_HEADER) String authHeader) {
 
@@ -77,7 +77,7 @@ public class StudyBoardController {
     }
 
     @DeleteMapping("/{study_id}/post/{post_id}")
-    public ResponseEntity<?> delete(@PathVariable("study_id") Long studyId, @PathVariable("post_id") Long postId,
+    public ResponseEntity<String> delete(@PathVariable("study_id") Long studyId, @PathVariable("post_id") Long postId,
             @RequestHeader(value = AUTHORIZATION_HEADER) String authHeader) {
         String token = tokenProvider.getRawToken(authHeader);
 

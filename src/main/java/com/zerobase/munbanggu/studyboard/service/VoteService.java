@@ -12,7 +12,6 @@ import com.zerobase.munbanggu.common.exception.NotFoundPostException;
 import com.zerobase.munbanggu.common.exception.NotFoundUserException;
 import com.zerobase.munbanggu.common.type.ErrorCode;
 import com.zerobase.munbanggu.common.util.StudyUtil;
-import com.zerobase.munbanggu.study.repository.StudyRepository;
 import com.zerobase.munbanggu.studyboard.model.entity.UserVote;
 import com.zerobase.munbanggu.studyboard.model.entity.Vote;
 import com.zerobase.munbanggu.studyboard.model.entity.VoteOption;
@@ -35,7 +34,6 @@ public class VoteService {
     private final VoteRepository voteRepository;
     private final VoteOptionRepository voteOptionRepository;
     private final UserVoteRepository userVoteRepository;
-    private final StudyRepository studyRepository;
     private final TokenProvider tokenProvider;
     private final StudyUtil studyUtil;
 
